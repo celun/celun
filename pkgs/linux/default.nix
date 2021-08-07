@@ -206,6 +206,9 @@ linuxManualConfig rec {
   inherit stdenv lib;
   inherit (base) version;
   inherit src;
+  extraMakeFlags = [
+    "KBUILD_BUILD_VERSION=1-shenanigans"
+  ];
   kernelPatches = [
   ];
   inherit configfile;

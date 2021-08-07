@@ -27,7 +27,9 @@ PS4=" $ "
 self="''${BASH_SOURCE[0]%/*}"
 
 cmdline=(
+    #console=tty0
     console=ttyS0
+    console=ttyAMA0
     #init=/bin/sh
 )
 
@@ -36,14 +38,20 @@ args=(
     # This makes it easier to run cross or native from a foreign arch.
     qemu-system-${qemuArch}
 
-	-m 512
-	${lib.optionalString isCross "--enable-kvm -cpu host"}
-    ${lib.optionalString stdenv.isAarch64 "-machine virt"}
+    -m 512
+    ${
+    # FIXME: detect at runtime!!
+    lib.optionalString isCross "--enable-kvm -cpu host"
+    }
+    ${lib.optionalString stdenv.isAarch64 ''
+      -machine virt -cpu cortex-a53
+      -device virtio-gpu-pci
+    ''}
 
-	#-display none
-	-kernel $self/${target}
-	-initrd $self/initramfs
-	-append "''${cmdline[*]}"
+    #-display none
+    -kernel $self/${target}
+    -initrd $self/initramfs
+    -append "''${cmdline[*]}"
     -serial mon:stdio
     #-serial stdio
     "$@"

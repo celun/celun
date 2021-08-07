@@ -46,6 +46,7 @@ args=(
 	-append "''${cmdline[*]}"
     -serial mon:stdio
     #-serial stdio
+    "$@"
 )
 
 set -x

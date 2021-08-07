@@ -24,5 +24,9 @@ in
       name = self.minimal-initramfs.name + ".cpio.gz";
       list = ''"${self.minimal-initramfs}/files.list"'';
     };
+    output = callPackage ./output {
+      initramfs = self.minimal-initramfs-cpio;
+      linux = self.linux;
+    };
   };
 }

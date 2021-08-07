@@ -21,6 +21,11 @@
 let
   inherit (base) src;
 
+  target =
+    #"qemu-virt"
+    "qemu-pc"
+  ;
+
   features = {
     printk = true;
     vt = true;
@@ -29,10 +34,7 @@ let
     logo = true;
 
     # You probably want to enable this on x86 and x86_64
-    acpi = features.qemu || true;
-
-    # Specific hardware
-    qemu = true;
+    acpi = target == "qemu-pc";
   };
 
   structuredConfig = import ./eval-config.nix {
@@ -61,8 +63,14 @@ let
           VT = lib.mkDefault no;
           # Serial output requires TTY
           TTY = yes;
+
+          # x86
           SERIAL_8250 = yes;
           SERIAL_8250_CONSOLE = yes;
+
+          # ARM
+          SERIAL_AMBA_PL011 = yes;
+          SERIAL_AMBA_PL011_CONSOLE = yes;
         })
 
         (lib.mkIf features.initramfs {
@@ -85,7 +93,7 @@ let
           FRAMEBUFFER_CONSOLE = lib.mkDefault yes;
         })
 
-        (lib.mkIf (features.logo && features.qemu) {
+        (lib.mkIf (features.logo && (target == "qemu-pc")) {
           DRM = yes;
           DRM_FBDEV_EMULATION = yes;
           DRM_BOCHS = yes;
@@ -142,6 +150,26 @@ let
           KERNEL_LZ4 = no;
           KERNEL_ZSTD = no;
         }
+
+        #
+        # Machine-specific configs
+        # ------------------------
+        #
+
+        # For qemu virt
+        (lib.mkIf (target == "qemu-virt") (lib.mkMerge [
+
+          (lib.mkIf (features.logo || features.vt) {
+            DRM = yes;
+            DRM_VIRTIO_GPU = yes;
+
+            # virtio gpu requires PCI
+            PCI = yes;
+            VIRTIO_MENU = yes;
+            VIRTIO_PCI = yes;
+            PCI_HOST_GENERIC = yes;
+          })
+        ]))
     ];
   };
 

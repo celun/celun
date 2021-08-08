@@ -87,7 +87,7 @@ let
     (
       PS4=" $ "
       set -x
-      hostname shenanigans
+      hostname smolix-demo
       ip link set lo up
     )
 

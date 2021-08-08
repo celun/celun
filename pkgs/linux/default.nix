@@ -32,7 +32,7 @@ let
   features = {
     printk = true;
     serial = true;
-    vt = false;
+    vt = true;
     graphics = true;
     initramfs = (initramfs != null) || true;
     logo = false;
@@ -69,7 +69,7 @@ let
         })
 
         (lib.mkIf features.vt {
-          TTY = yes;
+          TTY = lib.mkDefault (option no);
           VT = yes;
         })
 

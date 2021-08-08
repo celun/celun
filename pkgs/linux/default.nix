@@ -154,6 +154,11 @@ let
 
         # TODO: add compression dependent on initramfs compression scheme
         {
+          # If looking to minimize total size, provide an uncompressed cpio
+          # instead of compressing it and bundling it into the kernel image.
+          # (This assumes the kernel is self-decompressing or some other
+          #  compression scheme is handled by a previous boot stage)
+          # e.g. 1847520 vs. 1756544
           RD_GZIP = no;
           RD_BZIP2 = no;
           RD_LZMA = no;
@@ -162,13 +167,25 @@ let
           RD_LZ4 = no;
           RD_ZSTD = no;
 
-          KERNEL_GZIP = no;
-          KERNEL_BZIP2 = no;
-          KERNEL_LZMA = no;
-          KERNEL_XZ = no;
-          KERNEL_LZO = no;
-          KERNEL_LZ4 = no;
-          KERNEL_ZSTD = no;
+          # choice: Kernel compression mode
+          # (Only one of these options can be turned on)
+                              #  Comressed sizes
+                              #  x86_64  |  i868
+                              # =========|========
+          KERNEL_GZIP  = no;  # 1270320  | 1143200
+          KERNEL_BZIP2 = no;  # 1163008  | 1083248
+          KERNEL_LZMA  = no;  # 1070640  |  982960
+          KERNEL_XZ    = yes; # 1027440  |  941648
+          KERNEL_LZO   = no;  # 1385904  | 1226448
+          KERNEL_LZ4   = no;  # 1449728  | 1299712
+          KERNEL_ZSTD  = no;  # 1167104  | (DNC)
+
+          # Verdict: "for size" winner is xz.
+          # Decompression speed not tested; supposedly zstd.
+
+          # Can't get uncompressed to work
+          # KERNEL_UNCOMPRESSED = yes;
+          # HAVE_KERNEL_UNCOMPRESSED is not set
         }
 
         #

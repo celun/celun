@@ -2,4 +2,5 @@
 # Keep this list :sorted
 [
   ./overlays.nix
+  ./smolix
 ]

@@ -195,7 +195,7 @@ let
     #
     # From structed attributes
     #
-    ${structuredConfig.config}
+    ${structuredConfig.config.configfile}
     EOF
   '';
 in
@@ -214,6 +214,12 @@ linuxManualConfig rec {
   inherit configfile;
 }
 ).overrideAttrs({ postPatch ? "", postInstall ? "" , ... }: {
+
+  postConfigure = ''
+    (cd $buildRoot
+    ${structuredConfig.config.validatorSnippet}
+    )
+  '';
 
   postPatch = postPatch +
   /* Logo patch from Mobile NixOS */

@@ -49,6 +49,10 @@ let
   inittab = writeText "inittab" ''
     console::respawn:/bin/getty 0 console
 
+    ::sysinit:/bin/ply-image --clear=0x0000ff
+    ::wait:/bin/ply-image --clear=0xff0000
+    ::once:/bin/ply-image --clear=0x009900
+
     ::restart:/bin/init
     ::ctrlaltdel:/bin/poweroff
   '';
@@ -75,6 +79,11 @@ let
       mount -t devtmpfs devtmpfs /dev
     )
 
+    if [ -e /sys/class/graphics/fb0 ]; then
+      cat /sys/class/graphics/fb0/modes > /sys/class/graphics/fb0/mode
+      ply-image --clear=0xff00ff
+    fi
+
     (
       PS4=" $ "
       set -x
@@ -100,7 +109,7 @@ let
   '';
 
   # Let's use a statically built busybox!
-  inherit (pkgsStatic) busybox;
+  inherit (pkgsStatic) busybox ply-image;
 in
 
 runCommandNoCC "minimal-initramfs" {
@@ -114,6 +123,7 @@ runCommandNoCC "minimal-initramfs" {
   chmod -R +w $out
   rm $out/bin/init
   rm $out/default.script
+  cp -vrt $out/bin/ ${ply-image}/bin/*
 
   cp -vr ${init} $out/init
 

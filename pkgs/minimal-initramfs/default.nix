@@ -45,8 +45,10 @@ let
     ${""/* 30 */}                                                  ${""/**/}
   '';
 
+  # https://git.busybox.net/busybox/tree/examples/inittab
   inittab = writeText "inittab" ''
     console::respawn:/bin/getty 0 console
+
     ::restart:/bin/init
     ::ctrlaltdel:/bin/poweroff
   '';
@@ -62,6 +64,7 @@ let
     echo "::"
     echo ":: Setting up system"
     echo "::"
+    echo
 
     export PATH="/bin/"
     (
@@ -70,6 +73,11 @@ let
       mount -t proc proc /proc
       mount -t sysfs sys /sys
       mount -t devtmpfs devtmpfs /dev
+    )
+
+    (
+      PS4=" $ "
+      set -x
       hostname shenanigans
       ip link set lo up
     )

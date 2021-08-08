@@ -232,7 +232,7 @@ linuxManualConfig rec {
   inherit (base) version;
   inherit src;
   extraMakeFlags = [
-    "KBUILD_BUILD_VERSION=1-shenanigans"
+    "KBUILD_BUILD_VERSION=1-smolix"
   ];
   kernelPatches = [
   ];

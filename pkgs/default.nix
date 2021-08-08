@@ -2,8 +2,6 @@ final: super:
 
 let
   inherit (final) callPackage;
-  # TODO make a scoped package set for its own self
-  self = final.shenanigans;
 in
 {
   mkCpio = callPackage ./mkCpio {
@@ -12,23 +10,36 @@ in
 
   ply-image = callPackage ./ply-image { };
 
-  # Our "project"
-  shenanigans = {
-    linux = callPackage ./linux {
-      base = final.linux_5_13;
-      kernelPatches = with final.kernelPatches; [
-        bridge_stp_helper
-        request_key_helper
-      ];
-    };
-    minimal-initramfs = callPackage ./minimal-initramfs { };
-    minimal-initramfs-cpio = final.buildPackages.mkCpio {
-      name = self.minimal-initramfs.name + ".cpio.gz";
-      list = ''"${self.minimal-initramfs}/files.list"'';
-    };
-    output = callPackage ./output {
-      initramfs = self.minimal-initramfs-cpio;
-      linux = self.linux;
-    };
-  };
+  smolix = final.lib.makeScope final.pkgs.newScope (self:
+    let
+      inherit (self) callPackage;
+    in
+    {
+      linux = callPackage ./linux {
+        base = final.linux_5_13;
+        #base = final.linux_4_4;
+        kernelPatches = with final.kernelPatches; [
+          bridge_stp_helper
+          request_key_helper
+        ];
+        #initramfs = ''"${self.minimal-initramfs-cpio}"'';
+        #initramfs = ''"${self.minimal-initramfs-cpio-xz}"'';
+      };
+      minimal-initramfs = callPackage ./minimal-initramfs { };
+      minimal-initramfs-cpio = final.buildPackages.mkCpio {
+        name = self.minimal-initramfs.name + ".cpio.gz";
+        list = ''"${self.minimal-initramfs}/files.list"'';
+      };
+      minimal-initramfs-cpio-xz = final.runCommandNoCC "initramfs.cpio.xz" {
+        nativeBuildInputx = [
+          final.buildPackages.xz
+        ];
+      } ''
+        cat ${self.minimal-initramfs-cpio} | xz -9 -e --check=crc32 > $out
+      '';
+      output = callPackage ./output {
+        initramfs = self.minimal-initramfs-cpio;
+      };
+    }
+  );
 }

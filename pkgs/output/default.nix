@@ -38,13 +38,16 @@ args=(
     # This makes it easier to run cross or native from a foreign arch.
     qemu-system-${qemuArch}
 
-    -m 512
     ${
     # FIXME: detect at runtime!!
-    lib.optionalString isCross "--enable-kvm -cpu host"
-    }
+    lib.optionalString isCross ''
+    --enable-kvm -cpu host
+    -m 512
+    ''}
     ${lib.optionalString stdenv.isAarch64 ''
-      -machine virt -cpu cortex-a53
+      -machine virt
+      -cpu cortex-a53
+      -m 512
       -device virtio-gpu-pci
     ''}
 

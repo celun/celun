@@ -28,10 +28,11 @@ let
 
   features = {
     printk = true;
-    vt = true;
     serial = true;
+    vt = false;
+    graphics = true;
     initramfs = (initramfs != null) || true;
-    logo = true;
+    logo = false;
 
     # You probably want to enable this on x86 and x86_64
     acpi = target == "qemu-pc";
@@ -69,6 +70,10 @@ let
           VT = yes;
         })
 
+        (lib.mkIf features.graphics {
+          FB = yes;
+        })
+
         (lib.mkIf features.serial {
           VT = lib.mkDefault no;
           # Serial output requires TTY
@@ -95,14 +100,15 @@ let
         })
 
         (lib.mkIf features.logo {
-          FB = lib.mkDefault yes;
+          FB = yes;
           LOGO = yes;
 
           # Seemingly required for LOGO
-          TTY = lib.mkDefault yes;
+          TTY = yes;
+          VT = yes;
           # Also seemingly required
           # (Additionally an fbdev will be required in some form)
-          FRAMEBUFFER_CONSOLE = lib.mkDefault yes;
+          FRAMEBUFFER_CONSOLE = yes;
         })
 
         {
@@ -168,7 +174,7 @@ let
         #
 
         (lib.mkIf (target == "qemu-pc") (lib.mkMerge [
-          (lib.mkIf (features.logo || features.vt) {
+          (lib.mkIf (features.logo || features.vt || features.graphics) {
             DRM = yes;
             DRM_FBDEV_EMULATION = yes;
             DRM_BOCHS = yes;

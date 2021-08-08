@@ -10,6 +10,8 @@ in
     linux = final.linux_5_10;
   };
 
+  ply-image = callPackage ./ply-image { };
+
   # Our "project"
   shenanigans = {
     linux = callPackage ./linux {

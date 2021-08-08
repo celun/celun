@@ -75,6 +75,9 @@ let
 
         (lib.mkIf features.graphics {
           FB = yes;
+          # Assuming `graphics` will often be used without VTs and TTY
+          FRAMEBUFFER_CONSOLE = lib.mkDefault (option no);
+          TTY = lib.mkDefault (option no);
         })
 
         (lib.mkIf features.serial {

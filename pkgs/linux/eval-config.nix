@@ -62,7 +62,7 @@
                 # An absent unset value is *totally fine*.
                 if (
                   # Present
-                  (grep '${presencePattern}') &&
+                  (grep '${presencePattern}' .config) &&
                   # And not unset
                   ! (grep '^${lineNotSet}$' .config)
                 ) > /dev/null; then
@@ -80,9 +80,9 @@
                 # An absent `=n` value is *totally fine*.
                 if (
                   # Present
-                  (grep '${presencePattern}') &&
+                  (grep '${presencePattern}' .config) &&
                   # And neither unset or set to the value
-                  ! (grep '^${line}$' .config || grep '^${lineNotSet}$ .config')
+                  ! (grep '^${line}$' .config || grep '^${lineNotSet}$' .config)
                 ) > /dev/null; then
                   ${if item.optional then ''
                     ((++warn))

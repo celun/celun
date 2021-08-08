@@ -22,8 +22,8 @@ let
   inherit (base) src;
 
   target =
-    #"qemu-virt"
-    "qemu-pc"
+    #"qemu-virt" # ARM machine type
+    "qemu-pc" # x86_64 machine type
   ;
 
   features = {
@@ -44,14 +44,24 @@ let
         (lib.mkIf features.printk {
           # Without printk, kernel is mostly silent
           PRINTK = yes;
-          # This is not recommended (oddly enough enabled in NixOS)
-          # https://cateee.net/lkddb/web-lkddb/EARLY_PRINTK.html
-          EARLY_PRINTK = yes;
           # Not required, but helpful
           PRINTK_TIME = yes;
 
           # Outputs printk messages to TTY (when TTY is built in)
           TTY_PRINTK = option yes;
+        })
+
+        (lib.mkIf (features.printk && (stdenv.isx86_32 || stdenv.isx86_64)) {
+          # This is not recommended (oddly enough enabled in NixOS)
+          # https://cateee.net/lkddb/web-lkddb/EARLY_PRINTK.html
+          EARLY_PRINTK = yes;
+        })
+
+        # Apparently arm64 doesn't have EARLY_PRINTK?
+        (lib.mkIf (features.printk && (stdenv.isAarch32)) {
+          EARLY_PRINTK = yes;
+          # Required for EARLY_PRINTK
+          DEBUG_LL = yes;
         })
 
         (lib.mkIf features.vt {
@@ -67,7 +77,9 @@ let
           # x86
           SERIAL_8250 = yes;
           SERIAL_8250_CONSOLE = yes;
+        })
 
+        (lib.mkIf (features.serial && (stdenv.isAarch32 || stdenv.isAarch64)) {
           # ARM
           SERIAL_AMBA_PL011 = yes;
           SERIAL_AMBA_PL011_CONSOLE = yes;
@@ -93,12 +105,6 @@ let
           FRAMEBUFFER_CONSOLE = lib.mkDefault yes;
         })
 
-        (lib.mkIf (features.logo && (target == "qemu-pc")) {
-          DRM = yes;
-          DRM_FBDEV_EMULATION = yes;
-          DRM_BOCHS = yes;
-        })
-
         {
           # Required for proper modern /dev/
           DEVTMPFS = yes;
@@ -119,11 +125,16 @@ let
           PROC_CHILDREN = yes;
           KERNFS = yes;
           SYSFS = yes;
+          MEMFD_CREATE = yes;
+          CONFIGFS_FS = yes;
+        }
+
+        # TMPFS
+        {
+          SHMEM = yes;
           TMPFS = yes;
           TMPFS_POSIX_ACL = yes;
           TMPFS_XATTR = yes;
-          MEMFD_CREATE = yes;
-          CONFIGFS_FS = yes;
         }
 
         (lib.mkIf features.acpi {
@@ -156,11 +167,19 @@ let
         # ------------------------
         #
 
-        # For qemu virt
-        (lib.mkIf (target == "qemu-virt") (lib.mkMerge [
-
+        (lib.mkIf (target == "qemu-pc") (lib.mkMerge [
           (lib.mkIf (features.logo || features.vt) {
             DRM = yes;
+            DRM_FBDEV_EMULATION = yes;
+            DRM_BOCHS = yes;
+          })
+        ]))
+
+        # For qemu virt
+        (lib.mkIf (target == "qemu-virt") (lib.mkMerge [
+          (lib.mkIf (features.logo || features.vt) {
+            DRM = yes;
+            DRM_FBDEV_EMULATION = yes;
             DRM_VIRTIO_GPU = yes;
 
             # virtio gpu requires PCI

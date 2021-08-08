@@ -8,6 +8,9 @@
 , linuxManualConfig
 , runCommandNoCC
 
+, lz4
+, lzop
+
 , fetchFromGitHub
 /** Embed the given initramfs (cpio or files list) in the build */
 , initramfs ? null
@@ -238,7 +241,7 @@ linuxManualConfig rec {
   ];
   inherit configfile;
 }
-).overrideAttrs({ postPatch ? "", postInstall ? "" , ... }: {
+).overrideAttrs({ postPatch ? "", postInstall ? "" , nativeBuildInputs ? [], ... }: {
 
   postConfigure = ''
     (cd $buildRoot
@@ -270,7 +273,14 @@ linuxManualConfig rec {
         drivers/video/fbmem.c
     fi
   '';
+
   postInstall = postInstall + ''
     cp .config $out/config
   '';
+
+  # FIXME: add lz4 / lzop only if compression requires it
+  nativeBuildInputs = nativeBuildInputs ++ [
+    lz4
+    lzop
+  ];
 })

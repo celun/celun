@@ -230,7 +230,6 @@ let
   #  - apply structured config
   #    -> remove duplicate entries keeping last
   #  - re-"normalize" config against kernel config
-  #  - validate structuredConfig non-optional options are present warn on optional missing
   configfile = runCommandNoCC "linux-merged-config" {} ''
     cat >> $out <<EOF
     #

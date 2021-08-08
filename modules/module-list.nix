@@ -4,4 +4,5 @@
   ./hardware
   ./overlays.nix
   ./smolix
+  ./wip
 ]

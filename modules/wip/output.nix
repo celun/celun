@@ -18,7 +18,7 @@ in
       kernel = pkgs.smolix.configurableLinux {
         inherit (pkgs.linux_5_13) src version;
         defconfig = "tinyconfig";
-        structuredConfig = {}; # XXX
+        inherit (config.wip.kernel) structuredConfig;
       };
     });
   };

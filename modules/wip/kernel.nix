@@ -112,6 +112,22 @@ in
           Structured kernel configuration options for the smolix build.
         '';
       };
+      defconfig = mkOption {
+        type = types.str;
+        default = "tinyconfig";
+        description = ''
+          Name of the defconfig from the kernel package to use.
+        '';
+      };
+      package = mkOption {
+        type = types.package;
+        default = pkgs.linux_5_13;
+        description = ''
+          Base linux package to use.
+
+          The `src` and `version` attributes end up used.
+        '';
+      };
     };
   };
   config.wip = {

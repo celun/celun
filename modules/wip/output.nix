@@ -16,9 +16,8 @@ in
     # FIXME structuredConfig from config
     output = pkgs.smolix.output.override({
       kernel = pkgs.smolix.configurableLinux {
-        inherit (pkgs.linux_5_13) src version;
-        defconfig = "tinyconfig";
-        inherit (config.wip.kernel) structuredConfig;
+        inherit (config.wip.kernel) defconfig structuredConfig;
+        inherit (config.wip.kernel.package) src version;
       };
     });
   };

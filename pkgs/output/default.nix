@@ -3,7 +3,7 @@
 , runCommandNoCC
 , writeShellScript
 , initramfs ? null
-, linux
+, kernel ? throw "The `output` derivation requires the `kernel` argument to be given."
 , hostPlatform
 , buildPlatform
 }:
@@ -67,13 +67,13 @@ in
 runCommandNoCC "output" { } ''
   mkdir -p $out
   cp -vt $out \
-    ${linux}/${target}
+    ${kernel}/${target}
 
   ${lib.optionalString DTB ''
     # There might not be any DTBs to install; on ARM the DTB files
     # are built only if the proper ARCH_VENDOR config is set.
-    if [ -e ${linux}/dtbs ]; then
-      cp -r ${linux}/dtbs $out/dtbs
+    if [ -e ${kernel}/dtbs ]; then
+      cp -r ${kernel}/dtbs $out/dtbs
     else
       echo "Warning: no dtbs built on hostPlatform with DTB"
     fi

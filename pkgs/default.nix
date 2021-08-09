@@ -15,9 +15,7 @@ in
       inherit (self) callPackage;
     in
     {
-      linux = callPackage ./linux {
-        base = final.linux_5_13;
-        #base = final.linux_4_4;
+      configurableLinux = callPackage ./configurable-linux {
         kernelPatches = with final.kernelPatches; [
           bridge_stp_helper
           request_key_helper

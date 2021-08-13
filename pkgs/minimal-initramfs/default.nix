@@ -94,10 +94,13 @@ let
       mount -t devtmpfs devtmpfs /dev
     )
 
-    if [ -e /sys/class/graphics/fb0 ]; then
-      cat /sys/class/graphics/fb0/modes > /sys/class/graphics/fb0/mode
-      ply-image --clear=0xff00ff # fuchsia
-    fi
+    for i in  1 2 3 4 5 6 7 8 9 a b c d e f; do
+      ply-image --clear=0x$i$i$i$i$i$i &
+      # The background and wait helps on slower platforms.
+      sleep 0.01
+      wait
+    done
+    ply-image --clear=0xffffff /etc/splash.png
 
     (
       PS4=" $ "
@@ -164,6 +167,7 @@ runCommandNoCC "minimal-initramfs" {
   cp ${issue} $out/etc/issue
   cp ${passwd} $out/etc/passwd
   cp ${profile} $out/etc/profile
+  cp ${../../artwork/splash.png} $out/etc/splash.png
 
   # POSIX requires /bin/sh
   mkdir -p $out/bin

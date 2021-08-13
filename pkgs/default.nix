@@ -8,6 +8,8 @@ in
     linux = final.linux_5_10;
   };
 
+  mkExtraUtils = callPackage  ./mkExtraUtils { };
+
   ply-image = callPackage ./ply-image { };
 
   smolix = final.lib.makeScope final.pkgs.newScope (self:

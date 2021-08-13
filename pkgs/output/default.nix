@@ -64,7 +64,11 @@ set -x
 exec "''${args[@]}"
   '';
 in
-runCommandNoCC "output" { } ''
+runCommandNoCC "output" {
+  passthru = {
+    inherit kernel;
+  };
+} ''
   mkdir -p $out
   cp -vt $out \
     ${kernel}/${target}

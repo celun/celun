@@ -1,13 +1,22 @@
-{ runCommandNoCC
+{ lib
+, runCommandNoCC
 , writeScript
 , writeText
+, mkExtraUtils
 , nukeReferences
-, pkgsStatic }:
+
+# Additional software
+, busybox
+, ply-image
+, glibc
+
+}:
 
 #
-# This is a cheaty initramfs.
-# Let's use pkgsStatic so we don't have to actually really care about the
-# nix store dependencies.
+# This is a WIP initramfs.
+#
+# This is not meant to stay, and most of what is present here will be removed
+# and transformed into discrete modules for stage-1.
 #
 
 let
@@ -47,22 +56,27 @@ let
 
   # https://git.busybox.net/busybox/tree/examples/inittab
   inittab = writeText "inittab" ''
-    console::respawn:/bin/getty 0 console
+    console::respawn:${extraUtils}/bin/getty -l ${extraUtils}/bin/login 0 console
 
-    ::sysinit:/bin/ply-image --clear=0x0000ff
-    ::wait:/bin/ply-image --clear=0xff0000
-    ::once:/bin/ply-image --clear=0x009900
+    #::sysinit:${extraUtils}/bin/ply-image --clear=0x0000ff # lime
+    #::wait:${extraUtils}/bin/ply-image --clear=0xff0000    # red
+    #::once:${extraUtils}/bin/ply-image --clear=0x009900    # green means go
 
     ::restart:/bin/init
     ::ctrlaltdel:/bin/poweroff
   '';
 
   passwd = writeText "passwd" ''
-    root::0:0:root:/root:/bin/sh
+    root::0:0:root:/root:${extraUtils}/bin/sh
+  '';
+
+  profile = writeText "profile" ''
+    export LD_LIBRARY_PATH="${extraUtils}/lib"
+    export PATH="${extraUtils}/bin"
   '';
 
   init = writeScript "init" ''
-    #!/bin/sh
+    #!${extraUtils}/bin/sh
 
     echo
     echo "::"
@@ -70,7 +84,8 @@ let
     echo "::"
     echo
 
-    export PATH="/bin/"
+    . /etc/profile
+
     (
       PS4=" $ "
       set -x
@@ -81,7 +96,7 @@ let
 
     if [ -e /sys/class/graphics/fb0 ]; then
       cat /sys/class/graphics/fb0/modes > /sys/class/graphics/fb0/mode
-      ply-image --clear=0xff00ff
+      ply-image --clear=0xff00ff # fuchsia
     fi
 
     (
@@ -105,25 +120,41 @@ let
     echo "::"
     echo
 
-    exec /linuxrc
+    exec linuxrc
   '';
 
-  # Let's use a statically built busybox!
-  inherit (pkgsStatic) busybox ply-image;
+  extraUtils = mkExtraUtils {
+    name = "smolix--extra-utils";
+    packages = [
+      {
+        package = busybox;
+        extraCommand = ''
+          (cd $out/bin/; ln -s busybox linuxrc)
+        '';
+      }
+      {
+        package = ply-image;
+        extraCommand = ''
+          cp -f ${glibc.out}/lib/libpthread.so.0 $out/lib/
+        '';
+      }
+    ]
+    ;
+  };
 in
 
 runCommandNoCC "minimal-initramfs" {
   nativeBuildInputs = [
     nukeReferences
   ];
+  passthru = {
+    inherit extraUtils;
+  };
 } ''
   mkdir -p $out
 
-  cp -vr ${busybox}/* $out
-  chmod -R +w $out
-  rm $out/bin/init
-  rm $out/default.script
-  cp -vrt $out/bin/ ${ply-image}/bin/*
+  mkdir -p $out/${builtins.storeDir}
+  cp -prv ${extraUtils} $out/${builtins.storeDir}
 
   cp -vr ${init} $out/init
 
@@ -132,10 +163,11 @@ runCommandNoCC "minimal-initramfs" {
   cp ${inittab} $out/etc/inittab
   cp ${issue} $out/etc/issue
   cp ${passwd} $out/etc/passwd
+  cp ${profile} $out/etc/profile
 
-  echo ":: Nuking references"
-  chmod -R +w $out
-  nuke-refs $out/* $out/*/*
+  # POSIX requires /bin/sh
+  mkdir -p $out/bin
+  ln -s ${extraUtils}/bin/sh $out/bin/sh
   (
   cd $out
   find -type d -printf 'dir   /%h/%f 755 0 0 \n'

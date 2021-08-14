@@ -12,8 +12,7 @@ in
   };
 
   config.wip = {
-    # FIXME attrset for multiple outputs
-    # FIXME structuredConfig from config
+    # FIXME attrset for mergeable multiple outputs
     output = pkgs.smolix.output.override({
       kernel = pkgs.smolix.configurableLinux {
         inherit (config.wip.kernel) defconfig structuredConfig;

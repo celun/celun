@@ -12,11 +12,14 @@ in
   };
 
   config.wip = {
-    output = pkgs.smolix.output.override({
-      kernel = pkgs.smolix.configurableLinux {
-        inherit (config.wip.kernel) defconfig structuredConfig;
-        inherit (config.wip.kernel.package) src version;
-      };
-    });
+    output = {
+      wip = pkgs.smolix.output.override({
+        initramfs = config.wip.stage-1.output.initramfs;
+        kernel = pkgs.smolix.configurableLinux {
+          inherit (config.wip.kernel) defconfig structuredConfig;
+          inherit (config.wip.kernel.package) src version;
+        };
+      });
+    };
   };
 }

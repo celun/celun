@@ -22,6 +22,10 @@ let
   };
 in
 {
+  imports = [
+    ./contents.nix
+  ];
+
   options.wip.stage-1 = {
     cpio = mkOption {
       type = types.package;
@@ -74,10 +78,5 @@ in
         })
       ];
     };
-
-    wip.stage-1.cpio = lib.mkDefault (pkgs.buildPackages.mkCpio {
-      name = pkgs.smolix.minimal-initramfs.name + ".cpio";
-      list = ''"${pkgs.smolix.minimal-initramfs}/files.list"'';
-    });
   };
 }

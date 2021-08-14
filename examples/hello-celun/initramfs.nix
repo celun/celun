@@ -2,7 +2,7 @@
 
 /*
 
-For now the initramfs for the hello-smolix example system is entirely bespoke.
+For now the initramfs for the hello-celun example system is entirely bespoke.
 
 At some point a *busybox init stage-1* module will be added, and this will be
 changed to use that module.
@@ -32,14 +32,14 @@ let
 
   writeScriptDir = name: text: writeTextFile {inherit name text; executable = true; destination = "${name}";};
 
-  cfg = config.examples.hello-smolix;
+  cfg = config.examples.hello-celun;
 
   # Alias to `output.extraUtils` for internal usage.
   inherit (cfg.output) extraUtils;
 in
 {
 
-  options.examples.hello-smolix = {
+  options.examples.hello-celun = {
     extraUtils = {
       packages = mkOption {
         # TODO: submodule instead of `attrs` when we extract this
@@ -57,12 +57,12 @@ in
   config = {
     wip.stage-1.contents = {
       "/etc/issue" = writeTextDir "/etc/issue" ''
-                                     dP oo          
-                                     88             
-        .d8888b. 88d8b.d8b. .d8888b. 88 dP dP.  .dP 
-        Y8ooooo. 88'`88'`88 88'  `88 88 88  `8bd8'  
-              88 88  88  88 88.  .88 88 88  .d88b.  
-        `88888P' dP  dP  dP `88888P' dP dP dP'  `dP 
+
+                         _
+                 ___ ___| |_   _ _ __
+                / __/ _ \\ | | | | '_ \\
+               | (_|  __/ | |_| | | | |
+                \\___\\___|_|\\__,_|_| |_|
 
           +----------------------------------+
           | Tip of the day                   |
@@ -121,7 +121,7 @@ in
         exec linuxrc
       '';
 
-      extraUtils = runCommandNoCC "hello-smolix--initramfs-extraUtils" {
+      extraUtils = runCommandNoCC "hello-celun--initramfs-extraUtils" {
         passthru = {
           inherit extraUtils;
         };
@@ -131,13 +131,13 @@ in
       '';
 
       # POSIX requires /bin/sh
-      "/bin/sh" = runCommandNoCC "hello-smolix--initramfs-extraUtils-bin-sh" {} ''
+      "/bin/sh" = runCommandNoCC "hello-celun--initramfs-extraUtils-bin-sh" {} ''
         mkdir -p $out/bin
         ln -s ${extraUtils}/bin/sh $out/bin/sh
       '';
     };
 
-    examples.hello-smolix.extraUtils.packages = [
+    examples.hello-celun.extraUtils.packages = [
       {
         package = busybox;
         extraCommand = ''
@@ -179,7 +179,7 @@ in
 
         PS4=" $ "
         set -x
-        hostname smolix-demo
+        hostname celun-demo
         ip link set lo up
       '')
 
@@ -196,9 +196,9 @@ in
       '')
     ];
 
-    examples.hello-smolix.output = {
+    examples.hello-celun.output = {
       extraUtils = mkExtraUtils {
-        name = "smolix-hello--extra-utils";
+        name = "celun-hello--extra-utils";
         inherit (cfg.extraUtils) packages;
       };
     };

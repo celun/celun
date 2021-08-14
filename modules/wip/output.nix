@@ -7,12 +7,11 @@ in
   options.wip = {
     # All outputs the current configuration of smolix produces.
     output = mkOption {
-      type = types.unspecified; # XXX
+      type = with types; lazyAttrsOf unspecified;
     };
   };
 
   config.wip = {
-    # FIXME attrset for mergeable multiple outputs
     output = pkgs.smolix.output.override({
       kernel = pkgs.smolix.configurableLinux {
         inherit (config.wip.kernel) defconfig structuredConfig;

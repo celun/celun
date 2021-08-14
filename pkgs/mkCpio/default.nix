@@ -37,6 +37,9 @@ runCommandNoCC name {
   nativeBuildInputs = [
     borrowedMkCpio
   ];
+  passthru = {
+    inherit list linux;
+  };
 } ''
   gen_initramfs.sh -o "$out" "${list}"
 ''

@@ -123,10 +123,6 @@ in
       inherit list;
     });
 
-    wip.stage-1.contents = {
-      _default = pkgs.smolix.minimal-initramfs;
-    };
-
     wip.stage-1.additionalListEntries = {
       /*
       "/proc" = {

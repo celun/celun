@@ -145,9 +145,10 @@ runCommandNoCC "minimal-initramfs" {
   mkdir -p $out/${builtins.storeDir}
   cp -prv ${extraUtils} $out/${builtins.storeDir}
 
-  cp -vr ${init} $out/init
-
   mkdir -p $out/etc
+
+  # Copy init under /etc/ to make / prettier
+  cp -vr ${init} $out/etc/init
 
   cp ${inittab} $out/etc/inittab
   cp ${issue} $out/etc/issue

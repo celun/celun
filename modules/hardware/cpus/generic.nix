@@ -36,7 +36,7 @@ in
   };
 
   config = {
-    smolix.system.system = mkMerge [
+    celun.system.system = mkMerge [
       (lib.mkIf cfg.generic-i686.enable "i686-linux")
       (lib.mkIf cfg.generic-x86_64.enable "x86_64-linux")
       (lib.mkIf cfg.generic-armv7l.enable "armv7l-linux")

@@ -20,6 +20,7 @@
         VIRTIO_MENU = yes;
         VIRTIO_PCI = yes;
         PCI_HOST_GENERIC = yes;
+        VIRTIO_INPUT = yes;
       })
     ]
   ;

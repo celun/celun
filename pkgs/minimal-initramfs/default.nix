@@ -158,25 +158,4 @@ runCommandNoCC "minimal-initramfs" {
   # POSIX requires /bin/sh
   mkdir -p $out/bin
   ln -s ${extraUtils}/bin/sh $out/bin/sh
-  (
-  cd $out
-  find -type d -printf 'dir   /%h/%f 755 0 0 \n'
-  find -type f -printf 'file  /%h/%f '"$out/"'%h/%f %m  0 0 \n'
-  find -type l -printf 'slink /%h/%f %l %m  0 0 \n'
-  ) > ./files.list
-  mv files.list $out/
-  sed -i -e 's;/\./;/;g' $out/files.list
-
-  # Add more files to the initramfs
-  cat >> $out/files.list <<EOF
-
-  dir /proc 755 0 0
-  dir /sys 755 0 0
-  dir /mnt 755 0 0
-  dir /root 755 0 0
-
-  dir /dev 755 0 0
-  nod /dev/console 644 0 0 c 5 1
-  nod /dev/loop0   644 0 0 b 7 0
-  EOF
 ''

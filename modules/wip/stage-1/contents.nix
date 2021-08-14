@@ -1,8 +1,17 @@
 { config, lib, pkgs, ... }:
 
+/*
+
+Format:
+
+ - https://github.com/torvalds/linux/blob/dfa377c35d70c31139b1274ec49f87d380996c42/usr/gen_init_cpio.c#L452-L492
+
+*/
+
 let
   inherit (lib)
     concatStringsSep
+    concatStrings
     mapAttrsToList
     mkIf
     mkMerge
@@ -11,6 +20,22 @@ let
   ;
 
   cfg = config.wip.stage-1;
+
+  additionalEntriesFragment = pkgs.writeText "smolix-initramfs-additional.list" ''
+
+    # Additional entries
+
+    ${concatStrings (mapAttrsToList (name: entry: ''
+      ${entry.type} ${name} ${with entry; {
+        file  = "${location} ${mode} ${uid} ${gid} ${concatStringsSep " " hardLinks}";
+        dir = "${mode} ${uid} ${gid}";
+        nod = "${mode} ${uid} ${gid} ${devType} ${maj} ${min}";
+        slink = "${target} ${mode} ${uid} ${gid}";
+        pipe  = "${mode} ${uid} ${gid}";
+        sock  = "${mode} ${uid} ${gid}";
+      }.${entry.type}}
+    '') cfg.additionalListEntries)}
+  '';
 
   list = pkgs.runCommandNoCC "smolix-initramfs.list" { } ''
     ${concatStringsSep "\n" (mapAttrsToList (name: input: ''
@@ -26,27 +51,69 @@ let
       ) >> $out
     '') cfg.contents)}
 
+    # Remove leading /. caused by the find invocations in PWD
     sed -i -e 's;/\./;/;g' $out
 
-    # Add more files to the initramfs
-    cat >> $out <<EOF
-
-    dir /proc 755 0 0
-    dir /sys 755 0 0
-    dir /mnt 755 0 0
-    dir /root 755 0 0
-
-    dir /dev 755 0 0
-    nod /dev/console 644 0 0 c 5 1
-    nod /dev/loop0   644 0 0 b 7 0
-    EOF
+    # Add the additional files to the initramfs list
+    cat ${additionalEntriesFragment} >> $out
   '';
+
+  listEntrySubmodule = {
+    options = {
+      type = mkOption {
+        type = types.enum [ "file" "dir" "nod" "slink" "pipe" "sock" ];
+      };
+      # name is the key of the entry
+      location = mkOption {
+        type = types.str;
+      };
+      target = mkOption {
+        type = types.str;
+      };
+      mode = mkOption {
+        type = types.strMatching "[0-7]{3,4}";
+      };
+      uid = mkOption {
+        type = types.strMatching "[0-9]+";
+        default = "0";
+      };
+      gid = mkOption {
+        type = types.strMatching "[0-9]+";
+        default = "0";
+      };
+      devType = mkOption {
+        type = types.enum [ "b" "c" ];
+      };
+      maj = mkOption {
+        type = types.strMatching "[0-9]+";
+      };
+      min = mkOption {
+        type = types.strMatching "[0-9]+";
+      };
+      hardLinks = mkOption {
+        type = with types; listOf str;
+      };
+    };
+  };
 in
 {
   options.wip.stage-1 = {
     contents = mkOption {
       # Attrset so values can be overriden.
       type = with types; (lazyAttrsOf package);
+      description = ''
+        The content of these derivations will be added to the initramfs.
+
+        > **NOTE**: The key of the attrset is used solely to allow overriding.
+      '';
+    };
+
+    additionalListEntries = mkOption {
+      type = with types; lazyAttrsOf (submodule listEntrySubmodule);
+      internal = true;
+      description = ''
+        The key is the path.
+      '';
     };
   };
 
@@ -58,6 +125,45 @@ in
 
     wip.stage-1.contents = {
       _default = pkgs.smolix.minimal-initramfs;
+    };
+
+    wip.stage-1.additionalListEntries = {
+      /*
+      "/proc" = {
+        type = "dir";
+        mode = "755";
+      };
+      "/sys" = {
+        type = "dir";
+        mode = "755";
+      };
+      "/mnt" = {
+        type = "dir";
+        mode = "755";
+      };
+      "/root" = {
+        type = "dir";
+        mode = "755";
+      };
+      "/dev" = {
+        type = "dir";
+        mode = "755";
+      };
+      "/dev/console" = {
+        type = "nod";
+        mode = "644";
+        devType = "c";
+        maj = "5";
+        min = "1";
+      };
+      "/dev/loop0" = {
+        type = "nod";
+        mode = "644";
+        devType = "b";
+        maj = "7";
+        min = "0";
+      };
+      /* */
     };
   };
 }

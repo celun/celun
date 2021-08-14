@@ -1,16 +1,16 @@
 { config, lib, pkgs, ... }:
 
 let
-  inherit (config.smolix.eval) verbosely;
+  inherit (config.celun.eval) verbosely;
 
-  cfg = config.smolix.system;
+  cfg = config.celun.system;
   inherit (config.nixpkgs) localSystem;
 
   # The platform selected by the configuration
   selectedPlatform = lib.systems.elaborate cfg.system;
 in
 {
-  options.smolix = {
+  options.celun = {
     system = {
       automaticCross = lib.mkOption {
         type = lib.types.bool;
@@ -45,7 +45,7 @@ in
         assertion = pkgs.targetPlatform.system == cfg.system;
         message = ''
           pkgs.targetPlatform.system expected to be `${cfg.system}`, is `${pkgs.targetPlatform.system}`.
-            TIP: enable `smolix.system.automaticCross`, which will impurely automatically enable cross-compilation.
+            TIP: enable `celun.system.automaticCross`, which will impurely automatically enable cross-compilation.
         '';
       }
     ];

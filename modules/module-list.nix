@@ -3,6 +3,6 @@
 [
   ./hardware
   ./overlays.nix
-  ./smolix
+  ./celun
   ./wip
 ]

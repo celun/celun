@@ -1,10 +1,10 @@
 { config, lib, ... }:
 
 let
-  cfg = config.smolix.eval;
+  cfg = config.celun.eval;
 in
 {
-  options.smolix = {
+  options.celun = {
     eval = {
       verbose = lib.mkOption {
         type = lib.types.bool;
@@ -28,7 +28,7 @@ in
           ```
           { config, /* ..., */ ... }:
           let
-            inherit (config.smolix.eval) verbosely;
+            inherit (config.celun.eval) verbosely;
           in
             /* ... */
           ```
@@ -38,7 +38,7 @@ in
   };
 
   config = {
-    smolix.eval.verbosely = msg: val: if config.smolix.eval.verbose then msg val else val;
+    celun.eval.verbosely = msg: val: if config.celun.eval.verbose then msg val else val;
   };
 }
 

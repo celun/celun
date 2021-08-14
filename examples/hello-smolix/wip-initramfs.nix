@@ -1,6 +1,7 @@
 { lib
 , runCommandNoCC
 , writeScript
+, writeScriptBin
 , writeText
 , mkExtraUtils
 , nukeReferences
@@ -18,6 +19,11 @@ let
     # That is, console= param
     console::respawn:${extraUtils}/bin/getty -l ${extraUtils}/bin/login 0 console
 
+    ::sysinit:${extraUtils}/bin/sh -l -c ${extraUtils}/bin/mount-basic-mounts
+    ::wait:${extraUtils}/bin/sh -l -c ${extraUtils}/bin/fade-to-white
+    ::wait:${extraUtils}/bin/sh -l -c ${extraUtils}/bin/network-setup
+    ::wait:${extraUtils}/bin/sh -l -c ${extraUtils}/bin/logging-setup
+
     # Splash text is shown when the system is ready.
     ::once:${extraUtils}/bin/ply-image --clear=0xffffff /etc/splash.png
 
@@ -29,7 +35,7 @@ let
     root::0:0:root:/root:${extraUtils}/bin/sh
   '';
 
-  profile = writeText "profile" ''
+  profile = writeScript "profile" ''
     export LD_LIBRARY_PATH="${extraUtils}/lib"
     export PATH="${extraUtils}/bin"
   '';
@@ -39,53 +45,11 @@ let
 
     echo
     echo "::"
-    echo ":: Setting up system"
-    echo "::"
-    echo
-
-    . /etc/profile
-
-    (
-      PS4=" $ "
-      set -x
-      mkdir -p /proc /sys /dev
-      mount -t proc proc /proc
-      mount -t sysfs sys /sys
-      mount -t devtmpfs devtmpfs /dev
-    )
-
-    (
-    for i in  1 2 3 4 5 6 7 8 9 a b c d e f; do
-      ply-image --clear=0x$i$i$i$i$i$i &
-      # The background and wait helps on slower platforms.
-      sleep 0.01
-      wait
-    done
-    ) &
-
-    (
-      PS4=" $ "
-      set -x
-      hostname smolix-demo
-      ip link set lo up
-    )
-
-    if [ -e /proc/sys/kernel/printk ]; then
-      (
-        PS4=" $ "
-        set -x
-        echo 5 > /proc/sys/kernel/printk
-      )
-    fi
-
-    echo
-    echo "::"
     echo ":: Launching busybox linuxrc"
     echo "::"
     echo
 
-    wait
-
+    . /etc/profile
     exec linuxrc
   '';
 
@@ -104,6 +68,49 @@ let
           cp -f ${glibc.out}/lib/libpthread.so.0 $out/lib/
         '';
       }
+
+      (writeScriptBin "mount-basic-mounts" ''
+        #!/bin/sh
+
+        PS4=" $ "
+        set -x
+        mkdir -p /proc /sys /dev
+        mount -t proc proc /proc
+        mount -t sysfs sys /sys
+        mount -t devtmpfs devtmpfs /dev
+      '')
+
+      (writeScriptBin "fade-to-white" ''
+        #!/bin/sh
+
+        for i in  1 2 3 4 5 6 7 8 9 a b c d e f; do
+          ply-image --clear=0x$i$i$i$i$i$i &
+          # The background and wait helps on slower platforms.
+          sleep 0.01
+          wait
+        done
+      '')
+
+      (writeScriptBin "network-setup" ''
+        #!/bin/sh
+
+        PS4=" $ "
+        set -x
+        hostname smolix-demo
+        ip link set lo up
+      '')
+
+      (writeScriptBin "logging-setup" ''
+        #!/bin/sh
+
+        if [ -e /proc/sys/kernel/printk ]; then
+          (
+            PS4=" $ "
+            set -x
+            echo 5 > /proc/sys/kernel/printk
+          )
+        fi
+      '')
     ]
     ;
   };

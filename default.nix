@@ -1,5 +1,5 @@
 #
-# Quick way to eval a smolix system.
+# Quick way to eval a celun system.
 #
 # *This is not an external interface*. Do not import this file from your
 # project or configuration, as this may become opinionated in the future.
@@ -15,7 +15,7 @@ import ./lib/eval-with-configuration.nix (args // {
       (
         { lib, ... }:
         {
-          smolix.system.automaticCross = lib.mkDefault true;
+          celun.system.automaticCross = lib.mkDefault true;
         }
       )
     ];

@@ -48,7 +48,9 @@ args=(
       -machine virt
       -cpu cortex-a53
       -m 512
-      -device virtio-gpu-pci
+      -device virtio-gpu #,xres=1366,yres=768
+      -device virtio-keyboard
+      -device virtio-tablet # mouse
     ''}
 
     #-display none

@@ -14,11 +14,12 @@
 let
   # https://git.busybox.net/busybox/tree/examples/inittab
   inittab = writeText "inittab" ''
+    # Allow root login on the (only) "console"
+    # That is, console= param
     console::respawn:${extraUtils}/bin/getty -l ${extraUtils}/bin/login 0 console
 
-    #::sysinit:${extraUtils}/bin/ply-image --clear=0x0000ff # lime
-    #::wait:${extraUtils}/bin/ply-image --clear=0xff0000    # red
-    #::once:${extraUtils}/bin/ply-image --clear=0x009900    # green means go
+    # Splash text is shown when the system is ready.
+    ::once:${extraUtils}/bin/ply-image --clear=0xffffff /etc/splash.png
 
     ::restart:/bin/init
     ::ctrlaltdel:/bin/poweroff
@@ -60,7 +61,6 @@ let
       sleep 0.01
       wait
     done
-    ply-image --clear=0xffffff /etc/splash.png
     ) &
 
     (

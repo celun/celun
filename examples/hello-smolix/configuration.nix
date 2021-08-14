@@ -6,14 +6,17 @@ in
 {
   wip.kernel = {
     structuredConfig = with lib.kernel; {
+      # No on-screen console, ever
+      VT_CONSOLE = no;
       FRAMEBUFFER_CONSOLE = no;
     };
     features = {
       printk = true;
       serial = true;
 
-      graphics = true;
+      # VT means more than consoles on a VT.
       vt = true;
+      graphics = true;
     };
   };
 

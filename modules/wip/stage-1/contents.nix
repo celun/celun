@@ -21,7 +21,7 @@ let
 
   cfg = config.wip.stage-1;
 
-  additionalEntriesFragment = pkgs.writeText "smolix-initramfs-additional.list" ''
+  additionalEntriesFragment = pkgs.writeText "celun-initramfs-additional.list" ''
 
     # Additional entries
 
@@ -37,7 +37,7 @@ let
     '') cfg.additionalListEntries)}
   '';
 
-  list = pkgs.runCommandNoCC "smolix-initramfs.list" { } ''
+  list = pkgs.runCommandNoCC "celun-initramfs.list" { } ''
     ${concatStringsSep "\n" (mapAttrsToList (name: input: ''
       printf -- '-> Adding "%s" to initramfs\n' "${name}"
       (

@@ -109,7 +109,7 @@ in
         type = with types; attrsOf attrs;
         default = {};
         description = ''
-          Structured kernel configuration options for the smolix build.
+          Structured kernel configuration options for the celun build.
         '';
       };
       defconfig = mkOption {

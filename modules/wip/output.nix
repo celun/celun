@@ -5,7 +5,7 @@ let
 in
 {
   options.wip = {
-    # All outputs the current configuration of smolix produces.
+    # All outputs the current configuration of celun produces.
     output = mkOption {
       type = with types; lazyAttrsOf unspecified;
     };
@@ -13,9 +13,9 @@ in
 
   config.wip = {
     output = {
-      wip = pkgs.smolix.output.override({
+      wip = pkgs.celun.output.override({
         initramfs = config.wip.stage-1.output.initramfs;
-        kernel = pkgs.smolix.configurableLinux {
+        kernel = pkgs.celun.configurableLinux {
           inherit (config.wip.kernel) defconfig structuredConfig;
           inherit (config.wip.kernel.package) src version;
         };

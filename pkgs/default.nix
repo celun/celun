@@ -23,7 +23,6 @@ in
           request_key_helper
         ];
       };
-      minimal-initramfs = callPackage ./minimal-initramfs { };
       output = callPackage ./output { };
     }
   );

@@ -12,7 +12,7 @@ in
 
   ply-image = callPackage ./ply-image { };
 
-  smolix = final.lib.makeScope final.pkgs.newScope (self:
+  celun = final.lib.makeScope final.pkgs.newScope (self:
     let
       inherit (self) callPackage;
     in

@@ -76,6 +76,7 @@ let
       mount -t devtmpfs devtmpfs /dev
     )
 
+    (
     for i in  1 2 3 4 5 6 7 8 9 a b c d e f; do
       ply-image --clear=0x$i$i$i$i$i$i &
       # The background and wait helps on slower platforms.
@@ -83,6 +84,7 @@ let
       wait
     done
     ply-image --clear=0xffffff /etc/splash.png
+    ) &
 
     (
       PS4=" $ "
@@ -104,6 +106,8 @@ let
     echo ":: Launching busybox linuxrc"
     echo "::"
     echo
+
+    wait
 
     exec linuxrc
   '';

@@ -16,8 +16,9 @@ let
       nativeBuildInputs = [
         pkgs.buildPackages.xz
       ];
+      inherit (cfg) cpio;
     } ''
-      cat ${cfg.cpio} | xz -9 -e --check=crc32 > $out
+      cat $cpio | xz -9 -e --check=crc32 > $out
     '';
   };
 in
@@ -67,7 +68,13 @@ in
   };
 
   config = {
+    # Select the initramfs in use
     wip.stage-1.output.initramfs = compressed.${cfg.compression};
+
+    # Alias the initramfs image for end-users
+    build.initramfs = cfg.output.initramfs;
+
+    # Ensure the configurable kernel can use the initramfs.
     wip.kernel = {
       structuredConfig = with lib.kernel; mkMerge [
         (mkIf cfg.buildInKernel {

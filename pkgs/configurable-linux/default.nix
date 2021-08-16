@@ -34,6 +34,7 @@ let
 
   defconfigFile = linuxConfig {
     inherit src;
+    inherit version;
     makeTarget = defconfig;
   };
 

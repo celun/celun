@@ -82,6 +82,9 @@ in
   # The final pkgs set, usable as -A pkgs.[...] on the CLI.
   inherit (eval) pkgs;
 
+  # Pass the `build` option directly at the top level of the eval.
+  inherit (eval.config) build;
+
   # Evaluating this whole set is counter-productive.
   # It'll put a *bunch* of build products from the misc. inherits we added.
   # (We're also using `device` to force the other throw to happen first.)

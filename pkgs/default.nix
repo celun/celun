@@ -23,7 +23,6 @@ in
           request_key_helper
         ];
       };
-      output = callPackage ./output { };
     }
   );
 }

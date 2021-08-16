@@ -1,6 +1,10 @@
 { config, lib, ... }:
 
 {
+  imports = [
+    ../shared.nix
+  ];
+
   hardware = {
     cpu = "generic-aarch64";
   };
@@ -24,4 +28,16 @@
       })
     ]
   ;
+
+  device.qemu = {
+    qemuOptions = [
+      "-machine virt"
+      "-cpu cortex-a53"
+      "-device virtio-keyboard"
+      "-device virtio-tablet"
+      # Custom resolution could be added with:
+      #,xres=1366,yres=768
+      "-device virtio-gpu"
+    ];
+  };
 }

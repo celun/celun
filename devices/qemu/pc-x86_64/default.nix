@@ -1,6 +1,10 @@
 { config, lib, ... }:
 
 {
+  imports = [
+    ../shared.nix
+  ];
+
   hardware = {
     cpu = "generic-x86_64";
   };

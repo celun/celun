@@ -18,7 +18,7 @@ This system has been tested on the following devices:
 At the root of the `celun` checkout, build the system with:
 
 ```
- $ nix-build --argstr device "qemu/pc-x86_64" ./examples/hello-celun -A config.wip.output
+ $ nix-build --argstr device "qemu/pc-x86_64" ./examples/hello-celun -A build.wip
 ```
 
 Once built, run using the following command. This assumes `qemu-system-x86_64`

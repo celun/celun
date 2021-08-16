@@ -4,15 +4,8 @@ let
   inherit (lib) mkOption types;
 in
 {
-  options.wip = {
-    # All outputs the current configuration of celun produces.
-    output = mkOption {
-      type = with types; lazyAttrsOf unspecified;
-    };
-  };
-
-  config.wip = {
-    output = {
+  config = {
+    build = {
       wip = pkgs.celun.output.override({
         initramfs = config.wip.stage-1.output.initramfs;
         kernel = pkgs.celun.configurableLinux {

@@ -64,6 +64,11 @@ in
         internal = true;
       };
 
+      kernelCmdline = mkOption {
+        type = with types; listOf str;
+        internal = true;
+      };
+
       qemuAdditionalConfiguration = mkOption {
         type = types.lines;
         internal = true;
@@ -117,11 +122,7 @@ in
         self="''${BASH_SOURCE[0]%/*}"
 
         cmdline=(
-            # FIXME: get cmdline from modules system
-            #console=tty0
-            #console=ttyS0
-            #console=ttyAMA0
-            #init=/bin/sh
+          ${concatStringsSep "\n" cfg.kernelCmdline}
         )
 
         args=(

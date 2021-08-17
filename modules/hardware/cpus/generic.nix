@@ -27,6 +27,12 @@ in
       description = "Enable when system is a generic AArch64";
       internal = true;
     };
+    generic-armv5tel.enable = mkOption {
+      type = types.bool;
+      default = false;
+      description = "Enable when system is a generic armv5tel";
+      internal = true;
+    };
     generic-armv6l.enable = mkOption {
       type = types.bool;
       default = false;
@@ -45,6 +51,7 @@ in
     celun.system.system = mkMerge [
       (lib.mkIf cfg.generic-i686.enable "i686-linux")
       (lib.mkIf cfg.generic-x86_64.enable "x86_64-linux")
+      (lib.mkIf cfg.generic-armv5tel.enable "armv5tel-linux")
       (lib.mkIf cfg.generic-armv6l.enable "armv6l-linux")
       (lib.mkIf cfg.generic-armv7l.enable "armv7l-linux")
       (lib.mkIf cfg.generic-aarch64.enable "aarch64-linux")

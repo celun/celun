@@ -107,7 +107,7 @@ in
       '';
 
       # Place init under /etc/ to make / prettier
-      init = writeScriptDir "/etc/init" ''
+      init = writeScriptDir "/init" ''
         #!${extraUtils}/bin/sh
 
         echo

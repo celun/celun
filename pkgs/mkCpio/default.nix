@@ -41,5 +41,7 @@ runCommandNoCC name {
     inherit list linux;
   };
 } ''
+  printf ':: Building initramfs\n'
+  printf '   Using: %s\n' "${list}"
   gen_initramfs.sh -o "$out" "${list}"
 ''

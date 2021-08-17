@@ -12,12 +12,12 @@
       FRAMEBUFFER_CONSOLE = no;
     };
     features = {
-      printk = true;
-      serial = true;
+      printk = lib.mkDefault true;
+      serial = lib.mkDefault true;
 
       # VT means more than consoles on a VT.
-      vt = true;
-      graphics = true;
+      vt = lib.mkDefault true;
+      graphics = lib.mkDefault true;
     };
   };
 

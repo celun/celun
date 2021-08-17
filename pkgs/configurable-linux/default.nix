@@ -20,6 +20,7 @@
 , version ? src.version
 , src
 , structuredConfig
+, kernelPatches ? []
 , defconfig
 }:
 
@@ -68,8 +69,7 @@ linuxManualConfig rec {
   extraMakeFlags = [
     "KBUILD_BUILD_VERSION=1-celun"
   ];
-  kernelPatches = [
-  ];
+  inherit kernelPatches;
   inherit configfile;
 }
 ).overrideAttrs({ postPatch ? "", postInstall ? "" , nativeBuildInputs ? [], ... }: {

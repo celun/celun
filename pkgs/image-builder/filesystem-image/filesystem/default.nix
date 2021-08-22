@@ -8,6 +8,7 @@ let
 in
 {
   imports = [
+    ./ext4.nix
     ./fat32.nix
   ];
 

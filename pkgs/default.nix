@@ -25,6 +25,8 @@ in
           request_key_helper
         ];
       };
+
+      image-builder = callPackage ./image-builder { };
     }
   );
 }

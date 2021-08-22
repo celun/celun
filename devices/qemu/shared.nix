@@ -59,6 +59,16 @@ in
         '';
       };
 
+      availableBootModes = mkOption {
+        type = with types; listOf str;
+        internal = true;
+      };
+
+      bootMode = mkOption {
+        default = "direct";
+        type = types.enum cfg.availableBootModes;
+      };
+
       qemuOptions = mkOption {
         type = with types; listOf str;
         internal = true;
@@ -96,12 +106,15 @@ in
   config = {
     build.default = cfg.output;
     device.qemu = {
+      availableBootModes = [ "direct" ];
+
       qemuOptions = [
         "-m ${toString cfg.memorySize}"
+        "-serial mon:stdio"
+      ] ++ optionals (cfg.bootMode == "direct") [
         "-kernel $self/${target}"
         "-initrd $self/initramfs"
         ''-append "''${cmdline[*]}"''
-        "-serial mon:stdio"
       ];
 
       # TODO: add option to disallow virt? disallow `cpu host`?
@@ -149,6 +162,8 @@ in
         };
       } ''
         mkdir -p $out
+
+        ${optionalString (cfg.bootMode == "direct") ''
         cp -vt $out \
           ${kernel}/${target}
 
@@ -165,6 +180,8 @@ in
         ${optionalString (initramfs != null)
           "cp -v ${initramfs} $out/initramfs"
         }
+        ''}
+
         cp -v ${cfg.runScript} $out/run
       '';
     };

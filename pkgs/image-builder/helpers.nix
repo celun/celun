@@ -17,6 +17,14 @@ in
 
   config.helpers = rec {
     /**
+     * Silly alias to concat/map script segments for a given list.
+     */
+    each = els: fn: (
+      concatMapStringsSep "\n" (el:
+      fn el
+    ) els);
+
+    /**
      * Provides user-friendly aliases for defining sizes.
      */
     size = rec {
@@ -42,5 +50,21 @@ in
         "${hex}{8}-${hex}{4}-${hex}{4}-${hex}{4}-${hex}{12}"
       );
     };
+
+    makeGap = length: {
+      isGap = true;
+      inherit length;
+    };
+    makeESP = args: lib.recursiveUpdate {
+      name = "ESP-filesystem";
+      partitionLabel = "$ESP";
+      partitionType = "C12A7328-F81F-11D2-BA4B-00A0C93EC93B";
+      partitionUUID = "63E19453-EF00-4BD9-9AAF-000000000000";
+      filesystem = {
+        filesystem = "fat32";
+        label = "$ESP";
+        fat32.partitionID = "ef00ef00";
+      };
+    } args;
   };
 }

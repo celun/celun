@@ -4,6 +4,8 @@ let
   inherit (final) callPackage;
 in
 {
+  make_ext4fs = callPackage ./make_ext4fs { };
+
   mkCpio = callPackage ./mkCpio {
     linux = final.linux_5_10;
   };

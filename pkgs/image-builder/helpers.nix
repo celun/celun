@@ -36,5 +36,11 @@ in
      */
     first = list: lib.lists.last (lib.lists.reverseList list);
 
+    types = {
+      uuid = lib.types.strMatching (
+        let hex = "[0-9a-fA-F]"; in
+        "${hex}{8}-${hex}{4}-${hex}{4}-${hex}{4}-${hex}{12}"
+      );
+    };
   };
 }

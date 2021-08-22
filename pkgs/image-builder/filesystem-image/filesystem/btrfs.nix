@@ -10,10 +10,6 @@ let
     optionalString
     types
   ;
-  typeUuid = types.strMatching (
-    let hex = "[0-9a-fA-F]"; in
-    "${hex}{8}-${hex}{4}-${hex}{4}-${hex}{4}-${hex}{12}"
-  );
 
   inherit (config) label sectorSize blockSize;
   inherit (config.btrfs) partitionID;
@@ -21,7 +17,7 @@ in
 {
   options.btrfs = {
     partitionID = mkOption {
-      type = types.nullOr typeUuid;
+      type = types.nullOr config.helpers.types.uuid;
       example = "45454545-4545-4545-4545-454545454545";
       default = null;
       description = ''

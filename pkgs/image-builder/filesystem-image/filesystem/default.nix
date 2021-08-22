@@ -8,6 +8,7 @@ let
 in
 {
   imports = [
+    ./fat32.nix
   ];
 
   options = {

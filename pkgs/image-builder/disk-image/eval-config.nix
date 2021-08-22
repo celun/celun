@@ -12,7 +12,7 @@ rec {
     modules = [
       { _module.args.pkgs = pkgs; }
       module
-      { config = config'; _file = "(disk-image builder `config` argument)"; }
+      config'
     ] ++ modules;
   }).config;
 }

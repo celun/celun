@@ -105,6 +105,7 @@ in
 
   config = {
     build.default = cfg.output;
+    wip.uefi.enabled = cfg.bootMode == "uefi";
     device.qemu = {
       availableBootModes = [ "direct" ];
 
@@ -115,6 +116,9 @@ in
         "-kernel $self/${target}"
         "-initrd $self/initramfs"
         ''-append "''${cmdline[*]}"''
+      ] ++ optionals (cfg.bootMode == "uefi") [
+        ''-bios  "$self/OVMF.fd"''
+        ''-drive "file=$self/disk-image.img,format=raw,snapshot=on"''
       ];
 
       # TODO: add option to disallow virt? disallow `cpu host`?
@@ -180,6 +184,10 @@ in
         ${optionalString (initramfs != null)
           "cp -v ${initramfs} $out/initramfs"
         }
+        ''}
+        ${optionalString (cfg.bootMode == "uefi") ''
+          cp ${pkgs.OVMF.fd}/FV/OVMF.fd $out/OVMF.fd
+          cp ${config.build.disk-image} $out/disk-image.img
         ''}
 
         cp -v ${cfg.runScript} $out/run

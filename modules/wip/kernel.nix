@@ -101,6 +101,16 @@ in
       ACPI = yes;
       PCI = lib.mkDefault yes;
     })
+
+    (mkFeature "uefi" {
+      EFI = yes;
+      EFI_STUB = yes;
+      EFI_BOOTLOADER_CONTROL = lib.mkDefault yes;
+      EFI_ESRT = lib.mkDefault yes;
+      EFI_CAPSULE_LOADER = lib.mkDefault yes;
+      EFI_EARLYCON = lib.mkDefault yes;
+      EFI_VARS_PSTORE = lib.mkDefault no;
+    })
   ];
   options.wip = {
     kernel = {

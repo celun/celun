@@ -5,6 +5,10 @@
     ../shared.nix
   ];
 
+  device.qemu = {
+    availableBootModes = [ "uefi" ];
+  };
+
   hardware = {
     cpu = "generic-x86_64";
   };

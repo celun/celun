@@ -66,6 +66,7 @@ in
 
       kernelCmdline = mkOption {
         type = with types; listOf str;
+        default = [];
         internal = true;
       };
 

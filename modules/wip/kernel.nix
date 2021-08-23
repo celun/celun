@@ -138,86 +138,101 @@ in
           The `src` and `version` attributes end up used.
         '';
       };
+      output = mkOption {
+        type = types.package;
+        internal = true;
+        description = ''
+          Built kernel output.
+        '';
+      };
     };
   };
-  config.wip = {
-    # Sets up likely desired features
-    kernel.features = {
-      initramfs = mkDefault true;
-    };
-    kernel.structuredConfig =
-      let
-        yes = lib.mkDefault lib.kernel.yes;
-        no = lib.mkDefault lib.kernel.no;
-      in
-      mkMerge [
+  config = {
+    build.kernel = lib.mkDefault config.wip.kernel.output;
+    wip = {
+      kernel.output = pkgs.celun.configurableLinux {
+        inherit (config.wip.kernel) defconfig structuredConfig;
+        inherit (config.wip.kernel.package) src version;
+      };
+
+      # Sets up likely desired features
+      kernel.features = {
+        initramfs = mkDefault true;
+      };
+      kernel.structuredConfig =
+        let
+          yes = lib.mkDefault lib.kernel.yes;
+          no = lib.mkDefault lib.kernel.no;
+        in
+        mkMerge [
+            {
+            # Required for proper modern /dev/
+            DEVTMPFS = yes;
+            DEVTMPFS_MOUNT = yes;
+          }
+
           {
-          # Required for proper modern /dev/
-          DEVTMPFS = yes;
-          DEVTMPFS_MOUNT = yes;
-        }
+            BINFMT_ELF = yes;
+            BINFMT_SCRIPT = yes;
+          }
 
-        {
-          BINFMT_ELF = yes;
-          BINFMT_SCRIPT = yes;
-        }
+          # Make optional?
+          {
 
-        # Make optional?
-        {
+            PROC_FS = yes;
+            PROC_SYSCTL = yes;
+            PROC_PAGE_MONITOR = yes;
+            PROC_CHILDREN = yes;
+            KERNFS = yes;
+            SYSFS = yes;
+            MEMFD_CREATE = yes;
+            CONFIGFS_FS = yes;
+          }
 
-          PROC_FS = yes;
-          PROC_SYSCTL = yes;
-          PROC_PAGE_MONITOR = yes;
-          PROC_CHILDREN = yes;
-          KERNFS = yes;
-          SYSFS = yes;
-          MEMFD_CREATE = yes;
-          CONFIGFS_FS = yes;
-        }
-
-        # TMPFS
-        {
-          SHMEM = yes;
-          TMPFS = yes;
-          TMPFS_POSIX_ACL = yes;
-          TMPFS_XATTR = yes;
-        }
+          # TMPFS
+          {
+            SHMEM = yes;
+            TMPFS = yes;
+            TMPFS_POSIX_ACL = yes;
+            TMPFS_XATTR = yes;
+          }
 
 
-        # TODO: add compression dependent on initramfs compression scheme
-        {
-          # If looking to minimize total size, provide an uncompressed cpio
-          # instead of compressing it and bundle it into the kernel image.
-          # (This assumes the kernel is self-decompressing or some other
-          #  compression scheme is handled by a previous boot stage)
-          # e.g. 1847520 vs. 1756544
-          RD_GZIP = no;
-          RD_BZIP2 = no;
-          RD_LZMA = no;
-          RD_XZ = no;
-          RD_LZO = no;
-          RD_LZ4 = no;
-          RD_ZSTD = no;
-        }
+          # TODO: add compression dependent on initramfs compression scheme
+          {
+            # If looking to minimize total size, provide an uncompressed cpio
+            # instead of compressing it and bundle it into the kernel image.
+            # (This assumes the kernel is self-decompressing or some other
+            #  compression scheme is handled by a previous boot stage)
+            # e.g. 1847520 vs. 1756544
+            RD_GZIP = no;
+            RD_BZIP2 = no;
+            RD_LZMA = no;
+            RD_XZ = no;
+            RD_LZO = no;
+            RD_LZ4 = no;
+            RD_ZSTD = no;
+          }
 
-        (lib.mkIf (stdenv.isx86_32 || stdenv.isx86_64) {
-          # choice: Kernel compression mode
-          # (Only one of these options can be turned on)
-                              #  Comressed sizes
-                              #  x86_64  |  i868
-                              # =========|========
-          KERNEL_GZIP  = no;  # 1270320  | 1143200
-          KERNEL_BZIP2 = no;  # 1163008  | 1083248
-          KERNEL_LZMA  = no;  # 1070640  |  982960
-          KERNEL_XZ    = yes; # 1027440  |  941648
-          KERNEL_LZO   = no;  # 1385904  | 1226448
-          KERNEL_LZ4   = no;  # 1449728  | 1299712
-          KERNEL_ZSTD  = no;  # 1167104  | (DNC)
+          (lib.mkIf (stdenv.isx86_32 || stdenv.isx86_64) {
+            # choice: Kernel compression mode
+            # (Only one of these options can be turned on)
+                                #  Comressed sizes
+                                #  x86_64  |  i868
+                                # =========|========
+            KERNEL_GZIP  = no;  # 1270320  | 1143200
+            KERNEL_BZIP2 = no;  # 1163008  | 1083248
+            KERNEL_LZMA  = no;  # 1070640  |  982960
+            KERNEL_XZ    = yes; # 1027440  |  941648
+            KERNEL_LZO   = no;  # 1385904  | 1226448
+            KERNEL_LZ4   = no;  # 1449728  | 1299712
+            KERNEL_ZSTD  = no;  # 1167104  | (DNC)
 
-          # Verdict: "for size" winner is xz.
-          # Decompression speed not tested; supposedly zstd would win.
-        })
-      ]
-    ;
+            # Verdict: "for size" winner is xz.
+            # Decompression speed not tested; supposedly zstd would win.
+          })
+        ]
+      ;
+    };
   };
 }

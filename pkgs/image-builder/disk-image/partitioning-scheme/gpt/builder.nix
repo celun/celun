@@ -10,6 +10,7 @@
 let
   inherit (lib)
     concatMapStringsSep
+    concatStringsSep
     optionalString
   ;
   inherit (config.helpers)
@@ -17,6 +18,9 @@ let
   ;
   inherit (config)
     partitions
+  ;
+  inherit (config.gpt)
+    hybridMBR
   ;
 
   # Until we get 2.37 in Nixpkgs
@@ -180,6 +184,13 @@ stdenvNoCC.mkDerivation rec {
           dd conv=notrunc if=$input_img of=$img seek=$((start/512)) count=$((size/512)) bs=512
         ''
     )}
+
+    ${optionalString (hybridMBR != []) ''
+      echo
+      echo "Making Hybrid MBR"
+      echo
+      sgdisk --hybrid=${concatStringsSep ":" hybridMBR} "$img"
+    ''}
 
     echo
     echo "Information about the image:"

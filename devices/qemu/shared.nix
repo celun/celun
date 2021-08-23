@@ -36,13 +36,8 @@ let
   inherit (stdenv.hostPlatform.linux-kernel) target;
   DTB = stdenv.hostPlatform.linux-kernel.DTB or false;
 
+  kernel = config.wip.kernel.output;
   inherit (config.wip.stage-1.output) initramfs;
-  # FIXME kernel option, which by default uses configurableLinux
-  # inherit (config.wip.system???) kernel;
-  kernel = pkgs.celun.configurableLinux {
-    inherit (config.wip.kernel) defconfig structuredConfig;
-    inherit (config.wip.kernel.package) src version;
-  };
 
   cfg = config.device.qemu;
 in

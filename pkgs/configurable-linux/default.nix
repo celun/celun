@@ -1,7 +1,6 @@
 { pkgs
 , stdenv
 , lib
-, hostPlatform
 
 , linuxConfig
 , linuxManualConfig
@@ -9,10 +8,6 @@
 
 , lz4
 , lzop
-
-, fetchFromGitHub
-/** Embed the given initramfs (cpio or files list) in the build */
-, initramfs ? null
 , ...
 }:
 

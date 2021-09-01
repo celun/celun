@@ -33,11 +33,15 @@ let
     inherit pkgs structuredConfig;
   };
 
-  defconfigFile = linuxConfig {
-    inherit src;
-    inherit version;
-    makeTarget = defconfig;
-  };
+  defconfigFile =
+    if lib.isDerivation defconfig
+    then defconfig
+    else linuxConfig {
+      inherit src;
+      inherit version;
+      makeTarget = defconfig;
+    }
+  ;
 
   # TODO:
   #  - apply structured config

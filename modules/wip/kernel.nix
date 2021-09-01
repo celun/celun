@@ -123,7 +123,7 @@ in
         '';
       };
       defconfig = mkOption {
-        type = types.str;
+        type = with types; oneOf [ str package ];
         default = "tinyconfig";
         description = ''
           Name of the defconfig from the kernel package to use.

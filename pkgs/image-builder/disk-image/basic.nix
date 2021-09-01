@@ -47,6 +47,14 @@ in
       '';
     };
 
+    additionalCommands = mkOption {
+      type = types.str;
+      default = "";
+      description = ''
+        Additional commands to run during the disk image build.
+      '';
+    };
+
     # TODO: implement this:
     # mergeDerivationScripts = mkOption {
     #   type = types.bool;

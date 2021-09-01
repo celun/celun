@@ -41,6 +41,7 @@ stdenvNoCC.mkDerivation rec {
     name
     alignment
     sectorSize
+    additionalCommands
   ;
   inherit (config.gpt)
     diskID
@@ -197,7 +198,7 @@ stdenvNoCC.mkDerivation rec {
     ls -lh $img
     sfdisk -V --list $img
 
-    runHook additionalCommandsPhase
+    runHook additionalCommands
 
     set +u
   '';

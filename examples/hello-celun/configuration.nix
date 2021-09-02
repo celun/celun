@@ -30,6 +30,14 @@
     logo = ./loading.png;
   };
 
-  #wip.stage-1.compression = "xz";
-  #wip.stage-1.buildInKernel = true;
+  # Raspberry Pi specific configuration
+  device.config = {
+    raspberrypi = {
+      configTxt = ''
+          disable_splash=1
+      '';
+    };
+  };
+
+  wip.stage-1.compression = "xz";
 }

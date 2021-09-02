@@ -3,6 +3,8 @@
 [
   ./boot.nix
   ./build.nix
+  ./device.nix
+  ./devices
   ./hardware
   ./overlays.nix
   ./celun

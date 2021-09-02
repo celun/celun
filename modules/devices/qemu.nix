@@ -39,11 +39,12 @@ let
   kernel = config.wip.kernel.output;
   inherit (config.wip.stage-1.output) initramfs;
 
-  cfg = config.device.qemu;
+  cfg = config.device.config.qemu;
 in
 {
   options = {
-    device.qemu = {
+    device.config.qemu = {
+      enable = lib.mkEnableOption "building for QEMU";
       qemuArch = mkOption {
         type = types.str;
         default = qemuArch;
@@ -92,10 +93,10 @@ in
     };
   };
 
-  config = {
+  config = lib.mkIf (cfg.enable) {
     build.default = cfg.output;
     wip.uefi.enabled = cfg.bootMode == "uefi";
-    device.qemu = {
+    device.config.qemu = {
       availableBootModes = [
         "direct"
         "drive"

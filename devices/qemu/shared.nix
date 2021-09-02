@@ -102,7 +102,10 @@ in
     build.default = cfg.output;
     wip.uefi.enabled = cfg.bootMode == "uefi";
     device.qemu = {
-      availableBootModes = [ "direct" ];
+      availableBootModes = [
+        "direct"
+        "drive"
+      ];
 
       qemuOptions = [
         "-m ${toString cfg.memorySize}"
@@ -113,6 +116,8 @@ in
         ''-append "''${cmdline[*]}"''
       ] ++ optionals (cfg.bootMode == "uefi") [
         ''-bios  "$self/OVMF.fd"''
+        ''-drive "file=$self/disk-image.img,format=raw,snapshot=on"''
+      ] ++ optionals (cfg.bootMode == "drive") [
         ''-drive "file=$self/disk-image.img,format=raw,snapshot=on"''
       ];
 
@@ -162,10 +167,6 @@ in
       } ''
         mkdir -p $out
 
-        ${optionalString (cfg.bootMode == "direct") ''
-        cp -vt $out \
-          ${kernel}/${target}
-
         ${optionalString DTB ''
           # There might not be any DTBs to install; on ARM the DTB files
           # are built only if the proper ARCH_VENDOR config is set.
@@ -176,12 +177,20 @@ in
           fi
         ''}
 
+        ${optionalString (cfg.bootMode == "direct") ''
+        cp -vt $out \
+          ${kernel}/${target}
         ${optionalString (initramfs != null)
           "cp -v ${initramfs} $out/initramfs"
         }
         ''}
+
         ${optionalString (cfg.bootMode == "uefi") ''
           cp ${pkgs.OVMF.fd}/FV/OVMF.fd $out/OVMF.fd
+          cp ${config.build.disk-image} $out/disk-image.img
+        ''}
+
+        ${optionalString (cfg.bootMode == "drive") ''
           cp ${config.build.disk-image} $out/disk-image.img
         ''}
 

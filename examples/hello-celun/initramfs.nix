@@ -86,7 +86,6 @@ in
 
         # Launch all setup tasks
         ::sysinit:${extraUtils}/bin/sh -l -c ${extraUtils}/bin/mount-basic-mounts
-        ::wait:${extraUtils}/bin/sh -l -c ${extraUtils}/bin/fade-to-white
         ::wait:${extraUtils}/bin/sh -l -c ${extraUtils}/bin/network-setup
         ::wait:${extraUtils}/bin/sh -l -c ${extraUtils}/bin/logging-setup
 
@@ -161,17 +160,6 @@ in
         mount -t proc proc /proc
         mount -t sysfs sys /sys
         mount -t devtmpfs devtmpfs /dev
-      '')
-
-      (writeScriptBin "fade-to-white" ''
-        #!/bin/sh
-
-        for i in  1 2 3 4 5 6 7 8 9 a b c d e f; do
-          ply-image --clear=0x$i$i$i$i$i$i &
-          # The background and wait helps on slower platforms.
-          sleep 0.01
-          wait
-        done
       '')
 
       (writeScriptBin "network-setup" ''

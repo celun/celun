@@ -21,7 +21,7 @@ let
   kernel = config.wip.kernel.output;
   inherit (config.wip.stage-1.output) initramfs;
 
-  cfg = config.device.raspberryPi;
+  cfg = config.device.config.raspberrypi;
 
   configTxt = pkgs.writeText "config.txt" ''
     [all]
@@ -52,7 +52,8 @@ let
 in
 {
   options = {
-    device.raspberryPi = {
+    device.config.raspberrypi = {
+      enable = lib.mkEnableOption "building for Raspberry Pis";
       output = mkOption {
         type = types.package;
         internal = true;
@@ -67,10 +68,10 @@ in
     };
   };
 
-  config = {
+  config = lib.mkIf (cfg.enable) {
     build.default = cfg.output;
     build.disk-image = cfg.output;
-    device.raspberryPi = {
+    device.config.raspberrypi = {
       output = (pkgs.celun.image-builder.evaluateDiskImage {
         config =
           { config, ... }:

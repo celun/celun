@@ -21,9 +21,10 @@ let
   inherit (pkgs.stdenv) isAarch64;
 in
 {
-  imports = [
-    ../shared.nix
-  ];
+  device = {
+    name = "raspberrypi/3b";
+    config.raspberrypi.enable = true;
+  };
 
   hardware = {
     cpu = "generic-aarch64";

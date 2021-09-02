@@ -2,6 +2,7 @@
 
 let
   inherit (lib)
+    concatStringsSep
     mkIf
     mkMerge
     mkOption
@@ -21,8 +22,8 @@ let
 
   cfg = config.wip.uefi;
 
-  # TODO
   kernelParamsFile = pkgs.writeText "kernel-cmdline" ''
+    ${concatStringsSep " " config.boot.cmdline}
   '';
 
   efiKernel = pkgs.runCommandNoCC "linux_${cfg.platform}.efi" {

@@ -18,9 +18,10 @@ let
   ;
 in
 {
-  imports = [
-    ../shared.nix
-  ];
+  device = {
+    name = "raspberrypi/bcm2835";
+    config.raspberrypi.enable = true;
+  };
 
   hardware = {
     cpu = "generic-armv6l";

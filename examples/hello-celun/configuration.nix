@@ -25,7 +25,9 @@
       # VT means more than consoles on a VT.
       vt = lib.mkDefault true;
       graphics = lib.mkDefault true;
+      logo = lib.mkDefault true;
     };
+    logo = ./loading.png;
   };
 
   #wip.stage-1.compression = "xz";

@@ -1,9 +1,10 @@
 { config, lib, ... }:
 
 {
-  imports = [
-    ../shared.nix
-  ];
+  device = {
+    name = "qemu/virt-aarch64";
+    config.qemu.enable = true;
+  };
 
   hardware = {
     cpu = "generic-aarch64";
@@ -29,7 +30,7 @@
     ]
   ;
 
-  device.qemu = {
+  device.config.qemu = {
     qemuOptions = [
       "-machine virt"
       "-cpu cortex-a53"

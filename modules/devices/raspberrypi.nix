@@ -20,6 +20,7 @@ let
   inherit (stdenv.hostPlatform.linux-kernel) target;
   kernel = config.wip.kernel.output;
   inherit (config.wip.stage-1.output) initramfs;
+  inherit (config.device) nameForDerivation;
 
   cfg = config.device.config.raspberrypi;
 
@@ -78,6 +79,7 @@ in
 
           let inherit (config) helpers; in
           {
+            name = "${nameForDerivation}-disk-image";
             partitioningScheme = "gpt";
             gpt.hybridMBR = [ "1" "EE" ];
 

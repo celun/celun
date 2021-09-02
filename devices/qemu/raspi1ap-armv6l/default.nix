@@ -28,12 +28,12 @@
     ]
   ;
 
+  boot.cmdline = [
+    "earlycon=pl011,0x20201000"
+    "console=ttyAMA0"
+  ];
   device.qemu = {
     memorySize = 512;
-    kernelCmdline = [
-      "earlycon=pl011,0x20201000"
-      "console=ttyAMA0"
-    ];
     qemuOptions = [
       "-machine raspi1ap"
       "-dtb $self/dtbs/bcm2835-rpi-b-plus.dtb"

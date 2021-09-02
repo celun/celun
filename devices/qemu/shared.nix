@@ -69,12 +69,6 @@ in
         internal = true;
       };
 
-      kernelCmdline = mkOption {
-        type = with types; listOf str;
-        default = [];
-        internal = true;
-      };
-
       qemuAdditionalConfiguration = mkOption {
         type = types.lines;
         internal = true;
@@ -140,7 +134,7 @@ in
         self="''${BASH_SOURCE[0]%/*}"
 
         cmdline=(
-          ${concatStringsSep "\n" cfg.kernelCmdline}
+          ${concatStringsSep "\n" config.boot.cmdline}
         )
 
         args=(

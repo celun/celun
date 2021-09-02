@@ -155,7 +155,7 @@ in
         exec "''${args[@]}"
       '';
 
-      output = runCommandNoCC "output" {
+      output = runCommandNoCC "${config.device.nameForDerivation}-build" {
         passthru = {
           inherit kernel;
         };

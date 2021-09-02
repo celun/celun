@@ -1,9 +1,10 @@
 { config, lib, pkgs, ... }:
 
 {
-  imports = [
-    ../shared.nix
-  ];
+  device = {
+    name = "qemu/raspi1ap-armv6l";
+    config.qemu.enable = true;
+  };
 
   hardware = {
     cpu = "generic-armv6l";
@@ -32,7 +33,7 @@
     "earlycon=pl011,0x20201000"
     "console=ttyAMA0"
   ];
-  device.qemu = {
+  device.config.qemu = {
     memorySize = 512;
     qemuOptions = [
       "-machine raspi1ap"

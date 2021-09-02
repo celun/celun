@@ -1,11 +1,12 @@
 { config, lib, ... }:
 
 {
-  imports = [
-    ../shared.nix
-  ];
+  device = {
+    name = "qemu/pc-x86_64";
+    config.qemu.enable = true;
+  };
 
-  device.qemu = {
+  device.config.qemu = {
     availableBootModes = [ "uefi" ];
   };
 

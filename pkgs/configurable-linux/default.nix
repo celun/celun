@@ -17,6 +17,7 @@
 , structuredConfig
 , kernelPatches ? []
 , defconfig
+, logoPPM ? null
 }:
 
 # Note:
@@ -102,6 +103,11 @@ linuxManualConfig rec {
       sed -i -e 's/num_online_cpus()/1/g' \
         drivers/video/fbmem.c
     fi
+
+    ${lib.optionalString (logoPPM != null) ''
+      echo ":: Replacing the logo"
+      cp ${logoPPM} drivers/video/logo/logo_linux_clut224.ppm
+    ''}
   '';
 
   postInstall = postInstall + ''

@@ -25,11 +25,11 @@
     ]
   ;
 
+  boot.cmdline = [
+    "mem=${toString config.device.qemu.memorySize}M"
+  ];
   device.qemu = {
     memorySize = 256;
-    kernelCmdline = [
-      "mem=${toString config.device.qemu.memorySize}M"
-    ];
     qemuOptions = [
       "-machine versatilepb"
       ''-dtb "$self"/dtbs/versatile-pb.dtb''

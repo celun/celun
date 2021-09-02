@@ -138,6 +138,21 @@ in
           The `src` and `version` attributes end up used.
         '';
       };
+      logo = mkOption {
+        type = with types; nullOr (oneOf [package path]);
+        default = null;
+        description = ''
+          Image used to replace the Linux logo.
+        '';
+      };
+      logoPPM = mkOption {
+        type = with types; nullOr package;
+        default = null;
+        internal = true;
+        description = ''
+          Converted output for the Linux logo.
+        '';
+      };
       output = mkOption {
         type = types.package;
         internal = true;
@@ -150,8 +165,24 @@ in
   config = {
     build.kernel = lib.mkDefault config.wip.kernel.output;
     wip = {
+      kernel.logoPPM = pkgs.runCommandNoCC "logo_linux_clut224.ppm" {
+        nativeBuildInputs = with pkgs.buildPackages; [
+          imagemagick
+          netpbm
+          # Needed for netpbm; packaging issue it seems.
+          perl
+        ];
+      } ''
+        (
+        PS4=" $ "
+        set -x
+        convert ${cfg.logo} converted.ppm
+        ppmquant 224 converted.ppm > quantized.ppm
+        pnmnoraw quantized.ppm > $out
+        )
+      '';
       kernel.output = pkgs.celun.configurableLinux {
-        inherit (config.wip.kernel) defconfig structuredConfig;
+        inherit (config.wip.kernel) defconfig structuredConfig logoPPM;
         inherit (config.wip.kernel.package) src version;
       };
 

@@ -1,9 +1,10 @@
 { config, lib, pkgs, ... }:
 
 {
-  imports = [
-    ../shared.nix
-  ];
+  device = {
+    name = "qemu/versatile-ARM9";
+    config.qemu.enable = true;
+  };
 
   hardware = {
     cpu = "generic-armv5tel";
@@ -26,9 +27,9 @@
   ;
 
   boot.cmdline = [
-    "mem=${toString config.device.qemu.memorySize}M"
+    "mem=${toString config.device.config.qemu.memorySize}M"
   ];
-  device.qemu = {
+  device.config.qemu = {
     memorySize = 256;
     qemuOptions = [
       "-machine versatilepb"

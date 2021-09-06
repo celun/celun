@@ -45,6 +45,7 @@ in
       (mkIf (stdenv.isAarch32) {
         EARLY_PRINTK = yes;
         # Required for EARLY_PRINTK
+        DEBUG_KERNEL = yes;
         DEBUG_LL = yes;
       })
     ]))

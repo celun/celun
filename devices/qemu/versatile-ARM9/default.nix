@@ -9,7 +9,6 @@
   hardware = {
     cpu = "generic-armv5tel";
   };
-  wip.kernel.package = pkgs.linux_4_19;
   wip.kernel.defconfig = "versatile_defconfig";
   wip.kernel.structuredConfig =
     with lib.kernel;

@@ -39,5 +39,5 @@
     };
   };
 
-  wip.stage-1.compression = "xz";
+  wip.stage-1.compression = lib.mkDefault "xz";
 }

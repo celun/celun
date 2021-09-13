@@ -165,7 +165,7 @@ in
   config = {
     build.kernel = lib.mkDefault config.wip.kernel.output;
     wip = {
-      kernel.logoPPM = pkgs.runCommandNoCC "logo_linux_clut224.ppm" {
+      kernel.logoPPM = lib.mkIf (cfg.logo != null) (pkgs.runCommandNoCC "logo_linux_clut224.ppm" {
         nativeBuildInputs = with pkgs.buildPackages; [
           imagemagick
           netpbm
@@ -180,7 +180,7 @@ in
         ppmquant 224 converted.ppm > quantized.ppm
         pnmnoraw quantized.ppm > $out
         )
-      '';
+      '');
       kernel.output = pkgs.celun.configurableLinux {
         inherit (config.wip.kernel) defconfig structuredConfig logoPPM;
         inherit (config.wip.kernel.package) src version;

@@ -55,6 +55,16 @@ let
         '';
       };
 
+      offset = mkOption {
+        type = types.nullOr types.int;
+        default = null;
+        description = ''
+          Offset (in bytes) the partition starts at.
+
+          Defaults to the next aligned location on disk.
+        '';
+      };
+
       partitionType = mkOption {
         type = helpers.types.uuid;
         default = "0FC63DAF-8483-4772-8E79-3D69D8477DE4";

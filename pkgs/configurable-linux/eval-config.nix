@@ -58,14 +58,13 @@
 
             ${lib.concatMapStringsSep "\n" ({key, item}:
             let
-              line = mkConfigLine key item;
-              val = if item.freeform != null then item.freeform else item.tristate;
+              line = lib.escapeShellArg (mkConfigLine key item);
               lineNotSet = "# CONFIG_${key} is not set";
               linePattern = "^CONFIG_${key}=";
               presencePattern = "CONFIG_${key}[ =]";
             in
             ''
-              if [[ "${line}" == *" is not set" ]]; then
+              if [[ ${line} == *" is not set" ]]; then
                 # An absent unset value is *totally fine*.
                 if (
                   # Present
@@ -83,13 +82,13 @@
                   value=$(grep 'CONFIG_${key}[= ]' .config || :)
                   echo "CONFIG_${key} should be left «is not set»... set to: «$value»."
                 fi
-              elif [[ "${line}" == *=n ]]; then
+              elif [[ ${line} == *=n ]]; then
                 # An absent `=n` value is *totally fine*.
                 if (
                   # Present
                   (grep '${presencePattern}' .config) &&
                   # And neither unset or set to the value
-                  ! (grep '^${line}$' .config || grep '^${lineNotSet}$' .config)
+                  ! (grep '^'${line}'$' .config || grep '^${lineNotSet}$' .config)
                 ) > /dev/null; then
                   ${if item.optional then ''
                     ((++warn))
@@ -99,10 +98,10 @@
                     echo -n "ERROR: "
                   ''}
                   value=$(grep 'CONFIG_${key}[= ]' .config || :)
-                  echo "CONFIG_${key} not set to «${line}»... set to: «$value»."
+                  echo "CONFIG_${key} not set to «"${line}"»... set to: «$value»."
                 fi
               else
-                if ! grep '^${line}$' .config > /dev/null; then
+                if ! grep '^'${line}'$' .config > /dev/null; then
                   ${if item.optional then ''
                     ((++warn))
                     echo -n "Warning: "
@@ -112,9 +111,9 @@
                   ''}
                   value=$(grep 'CONFIG_${key}[= ]' .config || :)
                   if [[ -z "$value" ]]; then
-                    echo "CONFIG_${key} is expected to be set to «${line}», but is not present in config file."
+                    echo "CONFIG_${key} is expected to be set to «"${line}"», but is not present in config file."
                     else
-                    echo "CONFIG_${key} not set to «${line}»... set to: «$value»."
+                    echo "CONFIG_${key} not set to «"${line}"»... set to: «$value»."
                   fi
                 fi
               fi

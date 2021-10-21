@@ -1,10 +1,12 @@
 # This file includes fragments of <nixpkgs/nixos/modules/system/boot/kernel_config.nix>
-{ pkgs
+{ lib
+, path
 , modules ? []
 , structuredConfig
+, version
 }: rec {
-  module = import (pkgs.path + "/nixos/modules/system/boot/kernel_config.nix");
-  config = (pkgs.lib.evalModules {
+  module = import (path + "/nixos/modules/system/boot/kernel_config.nix");
+  config = (lib.evalModules {
     modules = [
       module
       (
@@ -47,7 +49,12 @@
             echo
             error=0
             warn=0
-            #set -x
+
+            if [ ! -e .config ]; then
+              echo ".config is not present in \$PWD ($PWD)"
+              echo "Aborting..."
+              exit 2
+            fi
 
             ${lib.concatMapStringsSep "\n" ({key, item}:
             let

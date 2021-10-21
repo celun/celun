@@ -26,7 +26,8 @@
 
 let
   evaluatedStructuredConfig = import ./eval-config.nix {
-    inherit pkgs structuredConfig;
+    inherit (pkgs) path;
+    inherit lib structuredConfig version;
   };
 
   defconfigFile =

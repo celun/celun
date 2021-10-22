@@ -184,7 +184,7 @@ in
       '');
       kernel.output = pkgs.celun.configurableLinux {
         inherit (config.wip.kernel) defconfig structuredConfig logoPPM;
-        inherit (config.wip.kernel.package) src version;
+        inherit (config.wip.kernel.package) src version patches;
       };
 
       # Sets up likely desired features

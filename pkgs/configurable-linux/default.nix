@@ -14,6 +14,7 @@
 { name ? "linux-${version}"
 , version ? src.version
 , src
+, patches
 , structuredConfig
 , kernelPatches ? []
 , defconfig
@@ -59,6 +60,8 @@ let
     ${evaluatedStructuredConfig.config.configfile}
     EOF
   '';
+
+  allPatches = kernelPatches ++ (builtins.map (patch: { inherit patch; }) patches);
 in
 
 (
@@ -70,7 +73,7 @@ linuxManualConfig rec {
   extraMakeFlags = [
     "KBUILD_BUILD_VERSION=1-celun"
   ];
-  inherit kernelPatches;
+  kernelPatches = allPatches;
   inherit configfile;
 }
 ).overrideAttrs({ postPatch ? "", postInstall ? "" , nativeBuildInputs ? [], ... }: {

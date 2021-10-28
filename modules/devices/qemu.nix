@@ -95,7 +95,7 @@ in
 
   config = lib.mkIf (cfg.enable) {
     build.default = cfg.output;
-    wip.uefi.enabled = cfg.bootMode == "uefi";
+    wip.uefi.enable = cfg.bootMode == "uefi";
     device.config.qemu = {
       availableBootModes = [
         "direct"

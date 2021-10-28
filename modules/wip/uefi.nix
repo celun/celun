@@ -42,7 +42,7 @@ in
 {
   options = {
     wip.uefi = {
-      enabled = mkOption {
+      enable = mkOption {
         type = types.bool;
         default = false;
         description = ''
@@ -70,7 +70,7 @@ in
     };
   };
 
-  config = mkIf cfg.enabled {
+  config = mkIf cfg.enable {
     wip.uefi = {
       platform = uefiPlatforms.${pkgs.targetPlatform.system};
     };

@@ -7,6 +7,7 @@ in
 {
   imports = [
     ./generic.nix
+    ./rockchip.nix
   ];
 
   options.hardware = {

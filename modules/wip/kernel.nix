@@ -124,7 +124,7 @@ in
         '';
       };
       defconfig = mkOption {
-        type = with types; oneOf [ str package ];
+        type = with types; oneOf [ str package path ];
         default = "tinyconfig";
         description = ''
           Name of the defconfig from the kernel package to use.

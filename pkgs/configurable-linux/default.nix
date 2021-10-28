@@ -32,7 +32,7 @@ let
   };
 
   defconfigFile =
-    if lib.isDerivation defconfig
+    if (lib.isDerivation defconfig) || (builtins.isPath defconfig)
     then defconfig
     else linuxConfig {
       inherit src;

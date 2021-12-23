@@ -2,21 +2,30 @@
 
 let
   inherit (lib)
+    concatMapStringsSep
+    concatStrings
     concatStringsSep
     escapeShellArg
     mkIf
     mkMerge
     mkOption
     optionalString
+    replaceChars
     types
   ;
   inherit (pkgs.stdenv.hostPlatform.linux-kernel) target;
   kernel = config.wip.kernel.output;
   inherit (config.wip.stage-1.output) initramfs;
-  inherit (config.device) nameForDerivation dtbName;
+  inherit (config.device) nameForDerivation dtbFiles;
   inherit (config.wip.u-boot) platform;
   inherit (config.wip) u-boot;
   inherit (config) build;
+
+  escapedNodeNameChars = [
+    "/"
+  ];
+  replacementChars = map (_: "-") escapedNodeNameChars;
+  escapeNodeName = replaceChars escapedNodeNameChars replacementChars;
 
   # Look-up table to translate from targetPlatform to U-Boot names.
   u-bootPlatforms = {
@@ -53,7 +62,8 @@ let
     echo " :: Auto-booting FIT image..."
     echo
     setenv bootargs ${escapeShellArg (concatStringsSep " " config.boot.cmdline)}
-    bootm $loadaddr#default-boot
+    setexpr flatfdtfile gsub "[${concatStrings escapedNodeNameChars}]" - "$fdtfile" 
+    bootm "$loadaddr#default-boot-$flatfdtfile"
   '';
 
   compression = "lzma";
@@ -101,7 +111,12 @@ let
             algo = "sha1";
           };
         };
-        fdt {
+
+        ${concatMapStringsSep "\n" (dtbName:
+        let
+          name = escapeNodeName dtbName;
+        in ''
+        fdt-${name} {
           description = "DTB";
           data = /incbin/("${compress {
             name = "fdt";
@@ -115,6 +130,10 @@ let
             algo = "sha1";
           };
         };
+        '') dtbFiles}
+
+        // This script "cheats" a bit, and refers to dtb-specific configs, by
+        // using fdtfile during the script execution.
         default-boot {
           description = "Default boot script";
           data = /incbin/("${bootScript}");
@@ -129,15 +148,20 @@ let
 
       configurations {
         default = "<none>";
-        default-boot {
-          description = "Default Boot Elements";
+        ${concatMapStringsSep "\n" (dtbName:
+        let
+          name = escapeNodeName dtbName;
+        in ''
+        default-boot-${name} {
+          description = "Boot for ${escapeShellArg dtbName}";
           kernel = "kernel";
-          fdt = "fdt";
+          fdt = "fdt-${name}";
           ramdisk = "initrd";
           hash {
             algo = "sha1";
           };
         };
+        '') dtbFiles}
       };
 
     };
@@ -149,7 +173,10 @@ let
       pkgs.buildPackages.ubootTools
     ];
   } ''
+    (
+    PS4=" $ "; set -x
     mkimage -f ${defaultITS} $out
+    )
   '';
 
   mkAddrOption = name: mkOption {

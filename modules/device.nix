@@ -18,12 +18,12 @@ in
           Name of the device being built.
         '';
       };
-      dtbName = mkOption {
-        type = types.str;
+      dtbFiles = mkOption {
+        type = with types; listOf str;
         internal = true;
         description = ''
-          Name of the mainline dtb file. For arm64 (AArch64), prefix with the
-          SoC vendor folder name.
+          Name of the dtb files to include.
+          For arm64 (AArch64), prefix with the SoC vendor folder name.
         '';
       };
       nameForDerivation = mkOption {

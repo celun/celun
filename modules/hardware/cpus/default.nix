@@ -7,6 +7,8 @@ in
 {
   imports = [
     ./generic.nix
+
+    ./allwinner.nix
     ./rockchip.nix
   ];
 

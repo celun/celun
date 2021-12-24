@@ -39,6 +39,14 @@ let
 
   cfg = config.wip.u-boot;
 
+  mkScript = file: pkgs.runCommandNoCC "out.scr" {   
+    nativeBuildInputs = [                             
+      pkgs.buildPackages.ubootTools                  
+    ];                                                
+  } ''                                                
+    mkimage -C none -A ${u-bootPlatforms.${pkgs.targetPlatform.system}} -T script -d ${file} $out
+  '';                                                 
+
   # This script serves to work around the issue that `bootargs` is not a valid
   # FIT image input.
   # Assume the boot script is basically doing the same job as this hypothetical
@@ -179,6 +187,34 @@ let
     )
   '';
 
+  fitBootScript = mkScript (pkgs.writeText "${nameForDerivation}-boot.cmd" ''
+    echo
+    echo "::"
+    echo ":: celun FIT image boot script "
+    echo "::"
+    echo
+    echo "devtype = $devtype"
+    echo "devnum = $devnum"
+    part list $devtype $devnum -bootable bootpart
+    echo "bootpart = $bootpart"
+
+    echo -n ' :: Auto-booting FIT image'
+     && setenv loadaddr $pxefile_addr_r
+     && echo -n ' -> Reading file'
+     && load $devtype $devnum:$bootpart $loadaddr ${nameForDerivation}.fit
+     && echo -n ' -> Attempting boot...'
+     && source $loadaddr:default-boot
+  '');
+
+  partitionContent = pkgs.runCommandNoCC "${nameForDerivation}-boot" {
+  } ''
+    (
+    mkdir -p $out
+    cp ${fitImage} $out/${nameForDerivation}.fit
+    cp ${fitBootScript} $out/boot.scr
+    )
+  '';
+
   mkAddrOption = name: mkOption {
     type = types.str;
     description = ''
@@ -215,6 +251,13 @@ in
             Self-contained FIT image for the built kernel+initramfs.
           '';
         };
+        partitionContent = mkOption {
+          type = types.package;
+          description = ''
+            Partition content such that the FIT image can be booted by the
+            default boot process of U-Boot.
+          '';
+        };
       };
     };
   };
@@ -224,6 +267,7 @@ in
       platform = u-bootPlatforms.${pkgs.targetPlatform.system};
       output = {
         fitImage = fitImage;
+        partitionContent = partitionContent;
       };
     };
   };

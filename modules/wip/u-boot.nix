@@ -208,13 +208,23 @@ in
       kernel_addr_r  = mkAddrOption "kernel_addr_r";
       pxefile_addr_r = mkAddrOption "pxefile_addr_r";
       ramdisk_addr_r = mkAddrOption "ramdisk_addr_r";
+      output = {
+        fitImage = mkOption {
+          type = types.package;
+          description = ''
+            Self-contained FIT image for the built kernel+initramfs.
+          '';
+        };
+      };
     };
   };
 
   config = mkIf cfg.enable {
     wip.u-boot = {
       platform = u-bootPlatforms.${pkgs.targetPlatform.system};
+      output = {
+        fitImage = fitImage;
+      };
     };
-    build.fitImage = fitImage;
   };
 }

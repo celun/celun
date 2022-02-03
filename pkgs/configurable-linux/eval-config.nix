@@ -44,6 +44,10 @@
 
           validatorSnippet = ''
             (
+            # This can be executed outside of a Nix build script.
+            set -eu
+            set -o pipefail
+
             echo
             echo ":: Validating kernel configuration"
             echo

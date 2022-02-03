@@ -62,6 +62,10 @@ let
   '';
 
   allPatches = kernelPatches ++ (builtins.map (patch: { inherit patch; }) patches);
+
+  validatorSnippet = pkgs.writeShellScript "${name}-validator-snippet" ''
+    ${evaluatedStructuredConfig.config.validatorSnippet}
+  '';
 in
 
 (
@@ -80,7 +84,7 @@ linuxManualConfig rec {
 
   postConfigure = ''
     (cd $buildRoot
-    ${evaluatedStructuredConfig.config.validatorSnippet}
+    ${validatorSnippet}
     )
   '';
 

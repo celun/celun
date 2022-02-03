@@ -120,6 +120,14 @@ linuxManualConfig rec {
 
   postInstall = postInstall + ''
     cp .config $out/config
+
+    (
+      echo 'Built-ins:'
+      echo '   text    data     bss     dec     hex filename'
+      echo '================================================'
+      echo 
+      size "$buildRoot"/*/built-in.o "$buildRoot"/*/built-in.a | sort -n -r -k 4
+    ) > $out/built-ins.txt
   '';
 
   # FIXME: add lz4 / lzop only if compression requires it

@@ -74,6 +74,7 @@ in
     wip.uefi = {
       platform = uefiPlatforms.${pkgs.targetPlatform.system};
     };
+    build.efiKernel = efiKernel;
     build.disk-image = (pkgs.celun.image-builder.evaluateDiskImage {
       config =
         { config, ... }:

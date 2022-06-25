@@ -195,7 +195,13 @@ let
     echo
     echo "devtype = $devtype"
     echo "devnum = $devnum"
-    part list $devtype $devnum -bootable bootpart
+    if test -z "$bootpart"; then
+      if test -z "$distro_bootpart"; then
+        part list $devtype $devnum -bootable bootpart
+      else
+        bootpart=$distro_bootpart
+      fi
+    fi
     echo "bootpart = $bootpart"
 
     echo -n ' :: Auto-booting FIT image'

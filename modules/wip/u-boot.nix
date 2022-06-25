@@ -220,6 +220,7 @@ let
     mkdir -p $out
     cp ${fitImage} $out/${nameForDerivation}.fit
     cp ${fitBootScript} $out/boot.scr
+    cp ${fitBootScript} $out/recovery.scr
     )
   '';
 

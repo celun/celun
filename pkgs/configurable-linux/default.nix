@@ -6,6 +6,7 @@
 , linuxManualConfig
 , runCommandNoCC
 
+, zlib
 , lz4
 , lzop
 , ...
@@ -132,6 +133,7 @@ linuxManualConfig rec {
 
   # FIXME: add lz4 / lzop only if compression requires it
   nativeBuildInputs = nativeBuildInputs ++ [
+    zlib
     lz4
     lzop
   ];

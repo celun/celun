@@ -214,7 +214,7 @@ let
      && source $loadaddr:default-boot
   '');
 
-  partitionContent = pkgs.runCommandNoCC "${nameForDerivation}-boot" {
+  filesystemContent = pkgs.runCommandNoCC "${nameForDerivation}-boot" {
   } ''
     (
     mkdir -p $out
@@ -259,10 +259,10 @@ in
             Self-contained FIT image for the built kernel+initramfs.
           '';
         };
-        partitionContent = mkOption {
+        filesystemContent = mkOption {
           type = types.package;
           description = ''
-            Partition content such that the FIT image can be booted by the
+            Filesystem content such that the FIT image can be booted by the
             default boot process of U-Boot.
           '';
         };
@@ -275,7 +275,7 @@ in
       platform = u-bootPlatforms.${pkgs.targetPlatform.system};
       output = {
         fitImage = fitImage;
-        partitionContent = partitionContent;
+        inherit filesystemContent;
       };
     };
   };

@@ -266,6 +266,12 @@ in
             default boot process of U-Boot.
           '';
         };
+        filesystemImage = mkOption {
+          type = types.package;
+          description = ''
+            Filesystem image with the filesystemContent data.
+          '';
+        };
       };
     };
   };
@@ -276,6 +282,24 @@ in
       output = {
         fitImage = fitImage;
         inherit filesystemContent;
+        filesystemImage = (pkgs.celun.image-builder.evaluateFilesystemImage {
+          config =
+            { config, ... }:
+            let
+              inherit (config) helpers;
+            in
+            {
+              # TODO: make configurable by mkMerge'ing an attrset?
+              # TODO: make configurable by using an helper which provides a real deal submodule?
+              filesystem = "fat32";
+              extraPadding = helpers.size.MiB 1;
+              #label = "boot";
+              populateCommands = ''
+                cp -vt . ${filesystemContent}/*
+              '';
+            }
+          ;
+        }).config.output;
       };
     };
   };

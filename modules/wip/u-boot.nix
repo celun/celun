@@ -206,9 +206,11 @@ let
 
     echo -n ' :: Auto-booting FIT image'
      && setenv loadaddr $pxefile_addr_r
-     && echo -n ' -> Reading file'
+     && echo
+     && echo -n ' -> Reading file... '
      && load $devtype $devnum:$bootpart $loadaddr ${nameForDerivation}.fit
-     && echo -n ' -> Attempting boot...'
+     && echo
+     && echo -n ' -> Attempting boot... '
      && source $loadaddr:default-boot
   '');
 

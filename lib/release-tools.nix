@@ -22,6 +22,9 @@ rec {
     )
   }: evalConfig {
     inherit baseModules;
+    specialArgs = {
+      celunPath = ../.;
+    };
     modules = []
       # `device` can be a couple of types.
       ++ (   if builtins.isAttrs device then [ device ]                    # An attrset is used directly

@@ -18,7 +18,9 @@ In turn, this should make using a docker container to build this output usable.
 
 let
   inherit (lib)
+    concatMapStringsSep
     concatStringsSep
+    escapeShellArg
     optional
     optionals
     optionalString
@@ -136,7 +138,7 @@ in
         self="''${BASH_SOURCE[0]%/*}"
 
         cmdline=(
-          ${concatStringsSep "\n" config.boot.cmdline}
+          ${concatMapStringsSep "\n  " escapeShellArg config.boot.cmdline}
         )
 
         args=(

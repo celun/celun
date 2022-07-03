@@ -37,7 +37,7 @@ let
   DTB = stdenv.hostPlatform.linux-kernel.DTB or false;
 
   kernel = config.wip.kernel.output;
-  inherit (config.wip.stage-1.output) initramfs;
+  initramfs = config.build.initramfs or null;
 
   cfg = config.device.config.qemu;
 in
@@ -105,11 +105,12 @@ in
       qemuOptions = [
         "-m ${toString cfg.memorySize}"
         "-serial mon:stdio"
-      ] ++ optionals (cfg.bootMode == "direct") [
+      ] ++ optionals (cfg.bootMode == "direct") (
+        [
         "-kernel $self/${target}"
-        "-initrd $self/initramfs"
         ''-append "''${cmdline[*]}"''
-      ] ++ optionals (cfg.bootMode == "uefi") [
+        ] ++ (optional (initramfs != null) "-initrd $self/initramfs")
+      )++ optionals (cfg.bootMode == "uefi") [
         ''-bios  "$self/OVMF.fd"''
         ''-drive "file=$self/disk-image.img,format=raw,snapshot=on"''
       ] ++ optionals (cfg.bootMode == "drive") [

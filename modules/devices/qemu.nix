@@ -142,14 +142,14 @@ in
         )
 
         args=(
-            # Always assume "bring your own QEMU".
-            # This makes it easier to run cross or native from a foreign arch.
-            # Also allows using the output on foreign systems without Nix.
-            qemu-system-${qemuArch}
+          # Always assume "bring your own QEMU".
+          # This makes it easier to run cross or native from a foreign arch.
+          # Also allows using the output on foreign systems without Nix.
+          qemu-system-${qemuArch}
 
-            ${concatStringsSep "\n" cfg.qemuOptions}
+          ${concatStringsSep "\n  " cfg.qemuOptions}
 
-            "$@"
+          "$@"
         )
 
         ${cfg.qemuAdditionalConfiguration}

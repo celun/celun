@@ -33,6 +33,14 @@ in
   ];
 
   options.wip.stage-1 = {
+    enable = mkOption {
+      type = types.bool;
+      default = false;
+      description = ''
+        Whether to enable the WIP stage-1 initramfs module or not.
+      '';
+    };
+
     cpio = mkOption {
       type = types.package;
       internal = true;
@@ -72,7 +80,7 @@ in
     };
   };
 
-  config = {
+  config = mkIf cfg.enable {
     # Select the initramfs in use
     wip.stage-1.output.initramfs = compressed.${cfg.compression};
 

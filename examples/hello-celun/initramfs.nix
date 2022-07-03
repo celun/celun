@@ -55,6 +55,7 @@ in
   };
 
   config = {
+    wip.stage-1.enable = true;
     wip.stage-1.contents = {
       "/etc/issue" = writeTextDir "/etc/issue" ''
 

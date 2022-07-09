@@ -33,7 +33,11 @@ let
   inherit (stdenv) hostPlatform isAarch64 isx86_32 isx86_64;
   isx86 = isx86_32 || isx86_64;
   inherit (stdenv.hostPlatform) qemuArch;
-  inherit (stdenv.hostPlatform.linux-kernel) target;
+  target =
+    if stdenv.hostPlatform.linux-kernel.target == "uImage"
+    then "zImage" # We're not using uImage.
+    else stdenv.hostPlatform.linux-kernel.target
+  ;
   DTB = stdenv.hostPlatform.linux-kernel.DTB or false;
 
   kernel = config.wip.kernel.output;

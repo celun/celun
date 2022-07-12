@@ -192,6 +192,7 @@ in
       kernel.output = pkgs.celun.configurableLinux {
         inherit (config.wip.kernel) defconfig structuredConfig logoPPM isModular;
         inherit (config.wip.kernel.package) src version patches;
+        postInstall = config.wip.kernel.package.postInstall or "";
       };
 
       # Sets up likely desired features

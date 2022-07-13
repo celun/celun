@@ -39,12 +39,13 @@ let
 
   cfg = config.wip.u-boot;
 
-  mkScript = file: pkgs.runCommandNoCC "out.scr" {   
+  mkScript = name: text: pkgs.runCommandNoCC name {
+    file = pkgs.writeText "${name}.cmd" text;
     nativeBuildInputs = [                             
       pkgs.buildPackages.ubootTools                  
     ];                                                
   } ''                                                
-    mkimage -C none -A ${u-bootPlatforms.${pkgs.targetPlatform.system}} -T script -d ${file} $out
+    mkimage -C none -A ${u-bootPlatforms.${pkgs.targetPlatform.system}} -T script -d "$file" "$out"
   '';                                                 
 
   # This script serves to work around the issue that `bootargs` is not a valid
@@ -187,7 +188,7 @@ let
     )
   '';
 
-  fitBootScript = mkScript (pkgs.writeText "${nameForDerivation}-boot.cmd" ''
+  fitBootScript = mkScript "out.scr" ''
     echo
     echo "::"
     echo ":: celun FIT image boot script "
@@ -212,7 +213,7 @@ let
      && echo
      && echo -n ' -> Attempting boot... '
      && source $loadaddr:default-boot
-  '');
+  '';
 
   filesystemContent = pkgs.runCommandNoCC "${nameForDerivation}-boot" {
   } ''
@@ -235,6 +236,10 @@ in
 {
   options = {
     wip.u-boot = {
+      lib = mkOption {
+        type = with types; attrsOf unspecified;
+        internal = true;
+      };
       enable = mkOption {
         type = types.bool;
         default = false;
@@ -277,31 +282,40 @@ in
     };
   };
 
-  config = mkIf cfg.enable {
-    wip.u-boot = {
-      platform = u-bootPlatforms.${pkgs.targetPlatform.system};
-      output = {
-        fitImage = fitImage;
-        inherit filesystemContent;
-        filesystemImage = (pkgs.celun.image-builder.evaluateFilesystemImage {
-          config =
-            { config, ... }:
-            let
-              inherit (config) helpers;
-            in
-            {
-              # TODO: make configurable by mkMerge'ing an attrset?
-              # TODO: make configurable by using an helper which provides a real deal submodule?
-              filesystem = "fat32";
-              extraPadding = helpers.size.MiB 1;
-              #label = "boot";
-              populateCommands = ''
-                cp -vt . ${filesystemContent}/*
-              '';
-            }
-          ;
-        }).config.output;
+  config = mkMerge [
+    {
+      wip.u-boot = {
+        lib = {
+          inherit mkScript;
+        };
       };
-    };
-  };
+    }
+    (mkIf cfg.enable {
+      wip.u-boot = {
+        platform = u-bootPlatforms.${pkgs.targetPlatform.system};
+        output = {
+          fitImage = fitImage;
+          inherit filesystemContent;
+          filesystemImage = (pkgs.celun.image-builder.evaluateFilesystemImage {
+            config =
+              { config, ... }:
+              let
+                inherit (config) helpers;
+              in
+              {
+                # TODO: make configurable by mkMerge'ing an attrset?
+                # TODO: make configurable by using an helper which provides a real deal submodule?
+                filesystem = "fat32";
+                extraPadding = helpers.size.MiB 1;
+                #label = "boot";
+                populateCommands = ''
+                  cp -vt . ${filesystemContent}/*
+                '';
+              }
+            ;
+          }).config.output;
+        };
+      };
+    })
+  ];
 }

@@ -132,7 +132,7 @@ in
       };
       package = mkOption {
         type = types.package;
-        default = pkgs.linux_5_15;
+        default = pkgs.linux_5_15.overrideAttrs(_:{ postInstall = ""; });
         description = ''
           Base linux package to use.
 

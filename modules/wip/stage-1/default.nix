@@ -89,13 +89,13 @@ in
 
   config = mkIf cfg.enable {
     # Select the initramfs in use
-    wip.stage-1.output.initramfs = compressed.${cfg.compression};
+    wip.stage-1.output.initramfs = lib.mkDefault compressed.${cfg.compression};
 
-    wip.stage-1.cpio = cfg.archive.output;
+    wip.stage-1.cpio = lib.mkDefault cfg.archive.output;
 
     # Alias the initramfs image for end-users
     # XXX: drop this option
-    build.initramfs = cfg.output.initramfs;
+    build.initramfs = lib.mkDefault cfg.output.initramfs;
 
     # Ensure the configurable kernel can use the initramfs.
     wip.kernel = {

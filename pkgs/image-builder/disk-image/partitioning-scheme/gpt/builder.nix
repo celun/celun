@@ -160,7 +160,7 @@ stdenvNoCC.mkDerivation rec {
     echo
     echo "Writing partitions into image"
     ${each partitions (partition: 
-      if partition ? isGap && partition.isGap then
+      if !(partition ? raw && partition.raw != null) && partition ? isGap && partition.isGap then
         (gapFragment partition)
       else
         ''

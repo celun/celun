@@ -109,8 +109,9 @@ let
       };
 
       raw = mkOption {
-        type = with types; oneOf [ package path ];
+        type = with types; nullOr (oneOf [ package path ]);
         defaultText = "[contents of the filesystem attribute]";
+        default = null;
         description = ''
           Raw image to be used as the partition content.
 

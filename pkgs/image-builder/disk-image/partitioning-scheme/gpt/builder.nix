@@ -53,7 +53,7 @@ stdenvNoCC.mkDerivation rec {
         offset=$((${toString partition.offset}))
 
         if (( offset < totalSize )); then
-          echo "Partition wanted to start at $offset while we were already at $totalSize"
+          echo "Partition '${partition.name}' wanted to start at $offset while we were already at $totalSize"
           echo "As of right now, partitions need to be in order."
           exit 1
         else

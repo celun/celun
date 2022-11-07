@@ -124,7 +124,7 @@ stdenvNoCC.mkDerivation rec {
         (gapFragment partition)
       else
         ''
-          input_img="${partition.raw}"
+          input_img="${if partition.raw != null then partition.raw else ""}"
           ${sizeFragment partition}
           echo ' -> '${lib.escapeShellArg partition.name}": $size / ${if partition ? filesystemType then partition.filesystemType else ""}"
 
@@ -164,7 +164,10 @@ stdenvNoCC.mkDerivation rec {
         (gapFragment partition)
       else
         ''
-          input_img="${partition.raw}"
+          input_img="${if partition.raw != null then partition.raw else ""}"
+          if [[ "$input_img" == "" ]]; then
+            input_img="/dev/zero"
+          fi
           ${sizeFragment partition}
           echo ' -> '${lib.escapeShellArg partition.name}": $size / ${if partition ? filesystemType then partition.filesystemType else ""}"
 

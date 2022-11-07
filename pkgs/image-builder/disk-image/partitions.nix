@@ -87,10 +87,11 @@ let
       };
 
       filesystem = mkOption {
-        type = types.submodule ({
+        type = types.nullOr (types.submodule ({
           imports = import (../filesystem-image/module-list.nix);
           _module.args.pkgs = pkgs;
-        });
+        }));
+        default = null;
         description = ''
           A filesystem image configuration.
 
@@ -121,7 +122,7 @@ let
     };
 
     config = mkMerge [
-      (mkIf (!config.isGap) {
+      (mkIf (!config.isGap && config.filesystem != null) {
         raw = lib.mkDefault config.filesystem.output;
       })
     ];

@@ -195,23 +195,32 @@ let
     echo
     echo "devtype = $devtype"
     echo "devnum = $devnum"
-    part list $devtype $devnum -bootable bootpart
+    if test -z "$bootpart"; then
+      if test -z "$distro_bootpart"; then
+        part list $devtype $devnum -bootable bootpart
+      else
+        bootpart=$distro_bootpart
+      fi
+    fi
     echo "bootpart = $bootpart"
 
     echo -n ' :: Auto-booting FIT image'
      && setenv loadaddr $pxefile_addr_r
-     && echo -n ' -> Reading file'
+     && echo
+     && echo -n ' -> Reading file... '
      && load $devtype $devnum:$bootpart $loadaddr ${nameForDerivation}.fit
-     && echo -n ' -> Attempting boot...'
+     && echo
+     && echo -n ' -> Attempting boot... '
      && source $loadaddr:default-boot
   '');
 
-  partitionContent = pkgs.runCommandNoCC "${nameForDerivation}-boot" {
+  filesystemContent = pkgs.runCommandNoCC "${nameForDerivation}-boot" {
   } ''
     (
     mkdir -p $out
     cp ${fitImage} $out/${nameForDerivation}.fit
     cp ${fitBootScript} $out/boot.scr
+    cp ${fitBootScript} $out/recovery.scr
     )
   '';
 
@@ -251,11 +260,17 @@ in
             Self-contained FIT image for the built kernel+initramfs.
           '';
         };
-        partitionContent = mkOption {
+        filesystemContent = mkOption {
           type = types.package;
           description = ''
-            Partition content such that the FIT image can be booted by the
+            Filesystem content such that the FIT image can be booted by the
             default boot process of U-Boot.
+          '';
+        };
+        filesystemImage = mkOption {
+          type = types.package;
+          description = ''
+            Filesystem image with the filesystemContent data.
           '';
         };
       };
@@ -267,7 +282,25 @@ in
       platform = u-bootPlatforms.${pkgs.targetPlatform.system};
       output = {
         fitImage = fitImage;
-        partitionContent = partitionContent;
+        inherit filesystemContent;
+        filesystemImage = (pkgs.celun.image-builder.evaluateFilesystemImage {
+          config =
+            { config, ... }:
+            let
+              inherit (config) helpers;
+            in
+            {
+              # TODO: make configurable by mkMerge'ing an attrset?
+              # TODO: make configurable by using an helper which provides a real deal submodule?
+              filesystem = "fat32";
+              extraPadding = helpers.size.MiB 1;
+              #label = "boot";
+              populateCommands = ''
+                cp -vt . ${filesystemContent}/*
+              '';
+            }
+          ;
+        }).config.output;
       };
     };
   };

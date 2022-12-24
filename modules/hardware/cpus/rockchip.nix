@@ -1,8 +1,12 @@
 { config, lib, pkgs, ... }:
 
 let
-  inherit (lib) mkIf mkMerge mkOption types;
+  inherit (lib) any mkIf mkMerge mkOption types;
   cfg = config.hardware.cpus;
+  anyRockchip = any (x: x) [
+    cfg.rockchip-rk3399.enable
+    cfg.rockchip-rk3566.enable
+  ];
 in
 {
   options.hardware.cpus = {
@@ -10,6 +14,12 @@ in
       type = types.bool;
       default = false;
       description = "Enable when system is a Rockchip RK3399.";
+      internal = true;
+    };
+    rockchip-rk3566.enable = mkOption {
+      type = types.bool;
+      default = false;
+      description = "Enable when system is a Rockchip RK3566.";
       internal = true;
     };
   };
@@ -24,7 +34,18 @@ in
         pxefile_addr_r = "0x00600000";
         ramdisk_addr_r = "0x06000000";
       };
-
+    })
+    (lib.mkIf cfg.rockchip-rk3566.enable {
+      celun.system.system = "aarch64-linux";
+      wip.u-boot = {
+        enable = true;
+        fdt_addr_r     = "0x01f00000";
+        kernel_addr_r  = "0x02080000";
+        pxefile_addr_r = "0x00600000";
+        ramdisk_addr_r = "0x06000000";
+      };
+    })
+    (lib.mkIf anyRockchip {
       wip.kernel.structuredConfig =
         with lib.kernel;
         let

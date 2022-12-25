@@ -132,7 +132,7 @@ in
       };
       package = mkOption {
         type = types.package;
-        default = pkgs.linux_5_13;
+        default = pkgs.linux_5_15;
         description = ''
           Base linux package to use.
 

@@ -35,7 +35,7 @@ let
       --add-section .cmdline="${kernelParamsFile}"          --change-section-vma  .cmdline=0x30000 \
       --add-section .linux="${kernel}/${target}"            --change-section-vma  .linux=0x2000000 \
       ${optionalString cfg.bundleInitramfs "--add-section .initrd='${initramfs}'                  --change-section-vma .initrd=0x3000000"} \
-      "${pkgs.libudev}/lib/systemd/boot/efi/linux${cfg.platform}.efi.stub" \
+      "${pkgs.systemd}/lib/systemd/boot/efi/linux${cfg.platform}.efi.stub" \
       "$out"
   '';
 in

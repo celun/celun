@@ -62,7 +62,7 @@ let
     EOF
   '';
 
-  allPatches = kernelPatches ++ (builtins.map (patch: { inherit patch; }) patches);
+  allPatches = (map (p: p.patch) kernelPatches) ++ patches;
 
   validatorSnippet = pkgs.writeShellScript "${name}-validator-snippet" ''
     ${evaluatedStructuredConfig.config.validatorSnippet}
@@ -78,7 +78,7 @@ linuxManualConfig rec {
   extraMakeFlags = [
     "KBUILD_BUILD_VERSION=1-celun"
   ];
-  kernelPatches = allPatches;
+  kernelPatches = [];
   inherit configfile;
 }
 ).overrideAttrs({ postPatch ? "", postInstall ? "" , nativeBuildInputs ? [], ... }: {
@@ -88,6 +88,10 @@ linuxManualConfig rec {
     ${validatorSnippet}
     )
   '';
+
+  # Ensure we don't inherit stray patches from the NixOS build harness...
+  # Because of the way we handle the kernel, they may be duplicated.
+  patches = allPatches;
 
   postPatch = postPatch +
   /* Logo patch from Mobile NixOS */

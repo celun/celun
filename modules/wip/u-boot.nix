@@ -10,7 +10,7 @@ let
     mkMerge
     mkOption
     optionalString
-    replaceChars
+    replaceStrings
     types
   ;
   inherit (pkgs.stdenv.hostPlatform.linux-kernel) target;
@@ -25,7 +25,7 @@ let
     "/"
   ];
   replacementChars = map (_: "-") escapedNodeNameChars;
-  escapeNodeName = replaceChars escapedNodeNameChars replacementChars;
+  escapeNodeName = replaceStrings escapedNodeNameChars replacementChars;
 
   # Look-up table to translate from targetPlatform to U-Boot names.
   u-bootPlatforms = {

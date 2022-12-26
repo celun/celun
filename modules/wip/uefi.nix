@@ -12,6 +12,8 @@ let
   inherit (pkgs.stdenv.hostPlatform.linux-kernel) target;
   kernel = config.wip.kernel.output;
   inherit (config.wip.stage-1.output) initramfs;
+  inherit (config.device) dtbFiles;
+  firstDTBFile = "${kernel}/dtbs/${builtins.elemAt dtbFiles 0}";
 
   # Look-up table to translate from targetPlatform to U-Boot names.
   uefiPlatforms = {
@@ -35,6 +37,7 @@ let
       --add-section .cmdline="${kernelParamsFile}"          --change-section-vma  .cmdline=0x30000 \
       --add-section .linux="${kernel}/${target}"            --change-section-vma  .linux=0x2000000 \
       ${optionalString cfg.bundleInitramfs "--add-section .initrd='${initramfs}'                  --change-section-vma .initrd=0x3000000"} \
+      ${optionalString cfg.bundleDTB "--add-section .dtb='${firstDTBFile}' --change-section-vma .dtb=0x40000"} \
       "${pkgs.systemd}/lib/systemd/boot/efi/linux${cfg.platform}.efi.stub" \
       "$out"
   '';
@@ -58,6 +61,17 @@ in
           > **Tip**: Bundling is likely desirable as otherwise another
           > bootloader stage will be required to prepare and load the
           > initramfs.
+        '';
+      };
+      bundleDTB = mkOption {
+        type = types.bool;
+        default = false;
+        description = ''
+          Whether to bundle the first dtb file listed in `config.devices.dtbFiles`
+
+          > **Tip**: Bundle only if necessary. It is better to rely on the
+          > Platform Firmware provided FDT. Bundling a dtb file makes the
+          > build produced less universal.
         '';
       };
       platform = mkOption {

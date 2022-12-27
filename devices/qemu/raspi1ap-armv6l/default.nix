@@ -1,5 +1,11 @@
 { config, lib, pkgs, ... }:
 
+let
+  inherit (lib)
+    head
+    splitString
+  ;
+in
 {
   device = {
     name = "qemu/raspi1ap-armv6l";
@@ -13,7 +19,12 @@
   # `Attempted to kill init! exitcode=0x0000000b`
   # wip.kernel.package = pkgs.linux_5_4;
   # See also: https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=977126
-  wip.kernel.package = pkgs.linux_4_19;
+  # NOTE: Using this weird `mkDerivation` here is a workaround to coax the
+  # `manual-config` builder to build :/
+  wip.kernel.package = pkgs.stdenv.mkDerivation {
+    inherit (pkgs.linux_4_19) src;
+    version = head (splitString "-" pkgs.linux_4_19.version);
+  };
   wip.kernel.defconfig = "bcm2835_defconfig";
   wip.kernel.structuredConfig =
     with lib.kernel;

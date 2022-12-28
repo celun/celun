@@ -53,7 +53,7 @@ stdenvNoCC.mkDerivation rec {
         offset=$((${toString partition.offset}))
 
         if (( offset < totalSize )); then
-          echo "Partition wanted to start at $offset while we were already at $totalSize"
+          echo "Partition '${partition.name}' wanted to start at $offset while we were already at $totalSize"
           echo "As of right now, partitions need to be in order."
           exit 1
         else
@@ -124,7 +124,7 @@ stdenvNoCC.mkDerivation rec {
         (gapFragment partition)
       else
         ''
-          input_img="${partition.raw}"
+          input_img="${if partition.raw != null then partition.raw else ""}"
           ${sizeFragment partition}
           echo ' -> '${lib.escapeShellArg partition.name}": $size / ${if partition ? filesystemType then partition.filesystemType else ""}"
 
@@ -160,11 +160,14 @@ stdenvNoCC.mkDerivation rec {
     echo
     echo "Writing partitions into image"
     ${each partitions (partition: 
-      if partition ? isGap && partition.isGap then
+      if !(partition ? raw && partition.raw != null) && partition ? isGap && partition.isGap then
         (gapFragment partition)
       else
         ''
-          input_img="${partition.raw}"
+          input_img="${if partition.raw != null then partition.raw else ""}"
+          if [[ "$input_img" == "" ]]; then
+            input_img="/dev/zero"
+          fi
           ${sizeFragment partition}
           echo ' -> '${lib.escapeShellArg partition.name}": $size / ${if partition ? filesystemType then partition.filesystemType else ""}"
 

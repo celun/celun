@@ -11,6 +11,7 @@ in
     ./btrfs.nix
     ./ext4.nix
     ./fat32.nix
+    ./squashfs.nix
   ];
 
   options = {

@@ -45,6 +45,12 @@ in
       description = "Enable when system is a generic armv7l";
       internal = true;
     };
+    generic-mips32.enable = mkOption {
+      type = types.bool;
+      default = false;
+      description = "Enable when system is a generic MIPS 32-bit";
+      internal = true;
+    };
   };
 
   config = {
@@ -55,6 +61,7 @@ in
       (lib.mkIf cfg.generic-armv6l.enable "armv6l-linux")
       (lib.mkIf cfg.generic-armv7l.enable "armv7l-linux")
       (lib.mkIf cfg.generic-aarch64.enable "aarch64-linux")
+      (lib.mkIf cfg.generic-mips32.enable "mipsel-linux")
     ];
   };
 }

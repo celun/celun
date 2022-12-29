@@ -16,10 +16,12 @@
 , version ? src.version
 , src
 , patches
+, postInstall ? ""
 , structuredConfig
 , kernelPatches ? []
 , defconfig
 , logoPPM ? null
+, isModular
 }:
 
 # Note:
@@ -27,6 +29,7 @@
 # assumed way too much about the kernel that is going to be built :<
 
 let
+  postInstall' = postInstall;
   evaluatedStructuredConfig = import ./eval-config.nix {
     inherit (pkgs) path;
     inherit lib structuredConfig version;
@@ -67,6 +70,12 @@ let
   validatorSnippet = pkgs.writeShellScript "${name}-validator-snippet" ''
     ${evaluatedStructuredConfig.config.validatorSnippet}
   '';
+
+  target =
+    if stdenv.hostPlatform.linux-kernel.target == "uImage"
+    then "zImage" # We're not using uImage.
+    else stdenv.hostPlatform.linux-kernel.target
+  ;
 in
 
 (
@@ -79,9 +88,15 @@ linuxManualConfig rec {
     "KBUILD_BUILD_VERSION=1-celun"
   ];
   kernelPatches = [];
+  # TODO: normalize the config so that config works with allowImportFromDerivation
   inherit configfile;
+  config = {
+    # FIXME: use the normalized config so CONFIG_MODULES is used from actual config.
+    CONFIG_MODULES = if isModular then "y" else "n";
+  };
 }
 ).overrideAttrs({ postPatch ? "", postInstall ? "" , nativeBuildInputs ? [], ... }: {
+  inherit target;
 
   postConfigure = ''
     (cd $buildRoot
@@ -123,16 +138,25 @@ linuxManualConfig rec {
     ''}
   '';
 
+  installTargets = [ "install" ]
+   ++ lib.optional (target == "zImage") "zinstall" ;
+  extraMakeFlags = [ target ];
+
   postInstall = postInstall + ''
-    cp .config $out/config
+    (
+      cd $buildRoot
+      cp .config $out/config
+    )
 
     (
+      cd $buildRoot
       echo 'Built-ins:'
       echo '   text    data     bss     dec     hex filename'
       echo '================================================'
       echo 
       size "$buildRoot"/*/built-in.o "$buildRoot"/*/built-in.a | sort -n -r -k 4
     ) > $out/built-ins.txt
+    ${postInstall'}
   '';
 
   # FIXME: add lz4 / lzop only if compression requires it

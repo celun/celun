@@ -132,7 +132,7 @@ in
       };
       package = mkOption {
         type = types.package;
-        default = pkgs.linux_5_15;
+        default = pkgs.linux_5_15.overrideAttrs(_:{ postInstall = ""; });
         description = ''
           Base linux package to use.
 
@@ -152,6 +152,13 @@ in
         internal = true;
         description = ''
           Converted output for the Linux logo.
+        '';
+      };
+      isModular = mkOption {
+        type = types.bool;
+        default = false;
+        description = ''
+          Whether kernel modules are built or not.
         '';
       };
       output = mkOption {
@@ -183,8 +190,9 @@ in
         )
       '');
       kernel.output = pkgs.celun.configurableLinux {
-        inherit (config.wip.kernel) defconfig structuredConfig logoPPM;
+        inherit (config.wip.kernel) defconfig structuredConfig logoPPM isModular;
         inherit (config.wip.kernel.package) src version patches;
+        postInstall = config.wip.kernel.package.postInstall or "";
       };
 
       # Sets up likely desired features

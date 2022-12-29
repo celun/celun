@@ -28,6 +28,12 @@
         DRM_FBDEV_EMULATION = yes;
         DRM_BOCHS = yes;
       })
+      (lib.mkIf (features.block) {
+        # Those might actually be needed :x
+        BLK_DEV_SD = yes;
+        ATA = yes;
+        ATA_PIIX = yes;
+      })
     ]
   ;
 }

@@ -86,6 +86,12 @@ in
       BLK_DEV_INITRD = yes;
     })
 
+    (mkFeature "block" {
+      # Support for block devices
+      BLOCK = yes;
+      BLK_DEV = yes;
+    })
+
     (mkFeature "logo" {
       FB = yes;
       LOGO = yes;

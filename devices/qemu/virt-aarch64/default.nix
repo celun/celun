@@ -27,6 +27,12 @@
         PCI_HOST_GENERIC = yes;
         VIRTIO_INPUT = yes;
       })
+      (lib.mkIf (features.block) {
+        PCI = yes;
+        VIRTIO_MENU = yes;
+        VIRTIO_PCI = yes;
+        VIRTIO_BLK = yes;
+      })
     ]
   ;
 

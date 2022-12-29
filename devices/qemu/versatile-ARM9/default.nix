@@ -29,7 +29,7 @@
     "mem=${toString config.device.config.qemu.memorySize}M"
   ];
   device.config.qemu = {
-    memorySize = 256;
+    memorySize = lib.mkDefault 256;
     qemuOptions = [
       "-machine versatilepb"
       ''-dtb "$self"/dtbs/versatile-pb.dtb''

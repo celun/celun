@@ -18,7 +18,9 @@ In turn, this should make using a docker container to build this output usable.
 
 let
   inherit (lib)
+    concatMapStringsSep
     concatStringsSep
+    escapeShellArg
     optional
     optionals
     optionalString
@@ -41,7 +43,7 @@ let
   DTB = stdenv.hostPlatform.linux-kernel.DTB or false;
 
   kernel = config.wip.kernel.output;
-  inherit (config.wip.stage-1.output) initramfs;
+  initramfs = config.build.initramfs or null;
 
   cfg = config.device.config.qemu;
 in
@@ -109,11 +111,12 @@ in
       qemuOptions = [
         "-m ${toString cfg.memorySize}"
         "-serial mon:stdio"
-      ] ++ optionals (cfg.bootMode == "direct") [
+      ] ++ optionals (cfg.bootMode == "direct") (
+        [
         "-kernel $self/${target}"
-        "-initrd $self/initramfs"
         ''-append "''${cmdline[*]}"''
-      ] ++ optionals (cfg.bootMode == "uefi") [
+        ] ++ (optional (initramfs != null) "-initrd $self/initramfs")
+      )++ optionals (cfg.bootMode == "uefi") [
         ''-bios  "$self/OVMF.fd"''
         ''-drive "file=$self/disk-image.img,format=raw,snapshot=on"''
       ] ++ optionals (cfg.bootMode == "drive") [
@@ -139,18 +142,18 @@ in
         self="''${BASH_SOURCE[0]%/*}"
 
         cmdline=(
-          ${concatStringsSep "\n" config.boot.cmdline}
+          ${concatMapStringsSep "\n  " escapeShellArg config.boot.cmdline}
         )
 
         args=(
-            # Always assume "bring your own QEMU".
-            # This makes it easier to run cross or native from a foreign arch.
-            # Also allows using the output on foreign systems without Nix.
-            qemu-system-${qemuArch}
+          # Always assume "bring your own QEMU".
+          # This makes it easier to run cross or native from a foreign arch.
+          # Also allows using the output on foreign systems without Nix.
+          qemu-system-${qemuArch}
 
-            ${concatStringsSep "\n" cfg.qemuOptions}
+          ${concatStringsSep "\n  " cfg.qemuOptions}
 
-            "$@"
+          "$@"
         )
 
         ${cfg.qemuAdditionalConfiguration}

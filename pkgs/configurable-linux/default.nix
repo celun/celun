@@ -156,6 +156,20 @@ linuxManualConfig rec {
       echo 
       size "$buildRoot"/*/built-in.o "$buildRoot"/*/built-in.a | sort -n -r -k 4
     ) > $out/built-ins.txt
+    ${lib.optionalString (target == "vmlinuz" || target == "vmlinux") ''
+      (
+      cd $out
+      # See arch/mips/Makefile, installed file includes version number.
+      # Attempting to move both since installing the compressed version
+      # installs the uncompressed version.
+      if [ -e vmlinux-* ]; then
+        mv -v vmlinux-* vmlinux
+      fi
+      if [ -e vmlinuz-* ]; then
+        mv -v vmlinuz-* vmlinuz
+      fi
+      )
+    ''}
     ${postInstall'}
   '';
 

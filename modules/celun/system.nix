@@ -7,7 +7,12 @@ let
   inherit (config.nixpkgs) localSystem;
 
   # The platform selected by the configuration
-  selectedPlatform = lib.systems.elaborate cfg.system;
+  selectedPlatform =
+    let
+      targetSystem = lib.systems.elaborate cfg.system;
+    in
+    targetSystem // { linux-kernel = { target = "vmlinuz"; } // targetSystem.linux-kernel; }
+  ;
 in
 {
   options.celun = {
@@ -31,6 +36,7 @@ in
           "armv6l-linux"
           "armv7l-linux"
           "aarch64-linux"
+          "mipsel-linux"
         ];
         description = ''
           Defines the kind of target architecture system the device is.

@@ -5,6 +5,7 @@ let
     mkIf
     mkMerge
     mkOption
+    mkRenamedOptionModule
     types
   ;
 
@@ -29,10 +30,18 @@ let
 in
 {
   imports = [
-    ./contents.nix
+    (mkRenamedOptionModule [ "wip" "stage-1" "contents" ] [ "wip" "stage-1" "archive" "contents" ])
+    (mkRenamedOptionModule [ "wip" "stage-1" "additionalListEntries" ] [ "wip" "stage-1" "archive" "additionalListEntries" ])
   ];
-
   options.wip.stage-1 = {
+    enable = mkOption {
+      type = types.bool;
+      default = false;
+      description = ''
+        Whether to enable the WIP stage-1 initramfs module or not.
+      '';
+    };
+
     cpio = mkOption {
       type = types.package;
       internal = true;
@@ -70,14 +79,23 @@ in
         > like compiling a full kernel every builds.
       '';
     };
+
+    archive = config.wip.cpio.lib.mkOption {
+      description = ''
+        Contents of the initramfs archive.
+      '';
+    };
   };
 
-  config = {
+  config = mkIf cfg.enable {
     # Select the initramfs in use
-    wip.stage-1.output.initramfs = compressed.${cfg.compression};
+    wip.stage-1.output.initramfs = lib.mkDefault compressed.${cfg.compression};
+
+    wip.stage-1.cpio = lib.mkDefault cfg.archive.output;
 
     # Alias the initramfs image for end-users
-    build.initramfs = cfg.output.initramfs;
+    # XXX: drop this option
+    build.initramfs = lib.mkDefault cfg.output.initramfs;
 
     # Ensure the configurable kernel can use the initramfs.
     wip.kernel = {
